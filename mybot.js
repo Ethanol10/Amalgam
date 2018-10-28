@@ -1,6 +1,23 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
+const jsonfile = require('jsonfile')
+
+function parseCommand(command) {
+	
+}
+
+function textOutput(inputText) {
+    
+}
+
+function imageOutput(imagePath) {
+
+}
+
+function emoticonOutput(emoteID) {
+    
+}
 
 client.on("ready", () => {
   console.log("Ready to serve!");
@@ -9,7 +26,8 @@ client.on("ready", () => {
 
 client.on("message", (message) => {
   //Don't check the message if it does not start with the prefix or is from a bot.
-    if (message.author.bot) return;
+	if (message.author.bot) return;
+	
 	if(message.content.includes("fuck") || message.content.includes("shit") || message.content.includes("faggot") || message.content.includes("cunt") ){
 		message.channel.send("Watch yo profanity");
 	}  
