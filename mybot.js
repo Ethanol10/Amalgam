@@ -1,22 +1,31 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
-const jsonfile = require('jsonfile')
+const SimpleCommand = require("./SimpleCommand.json");
 
 function parseCommand(command) {
-	
-}
-
-function textOutput(inputText) {
-    
-}
-
-function imageOutput(imagePath) {
-
-}
-
-function emoticonOutput(emoteID) {
-    
+	var i;
+	for (i = 0; i < SimpleCommand.MasterCommandList.length; i++) { 
+    	if(command.content.includes(SimpleCommand.MasterCommandList[i].command)){
+			switch(SimpleCommand.MasterCommandList[i].type){
+				case "text":
+					textOutput(SimpleCommand.MasterCommandList[i].info, command);
+					return console.log("text outputted");
+					break;
+				case "image":
+					imageOutput(SimpleCommand.MasterCommandList[i].info, command);
+					return console.log("image outputted");
+					break;
+				case "emoticon":
+					emoticonOutput(SimpleCommand.MasterCommandList[i].info, command);
+					return console.log("emote outputted");
+					break;
+				default:
+					console.log("Mistyped command my dude");
+					break;
+			}
+		}
+	}
 }
 
 client.on("ready", () => {
@@ -28,34 +37,19 @@ client.on("message", (message) => {
   //Don't check the message if it does not start with the prefix or is from a bot.
 	if (message.author.bot) return;
 	
-	if(message.content.includes("fuck") || message.content.includes("shit") || message.content.includes("faggot") || message.content.includes("cunt") ){
-		message.channel.send("Watch yo profanity");
-	}  
-	
-	if(message.content.includes("no u")){
-		message.channel.send("no u first");
-	}
-	
-	if(message.content.includes("あ")){
-		message.channel.send("fucking weeb");
-	}
-	
-	if (message.content.includes("ethan")){
-		message.channel.send("some type of fuel that no one likes to use but everyone has to use it cause it's cheap and everyone is a poor little shit. Do you think I have enough money to pay for diesel? I don't think so motherfucker.");
-	}
-	
-	if(message.content.includes("jack")){
-		message.channel.send("asian vegetables");
-	}
-	
-	if(message.content.includes("julian")){
-		message.channel.send("a wobbly dessert");
-	}
-	
-	if(message.content.includes("おまえはもう死んでいる")){
-		message.channel.send("私はウェッブを話すことができません。");
-	}
-	
+	parseCommand(message);	
 });
+
+function textOutput(inputText, message) {
+	message.channel.send(inputText);
+}
+
+function imageOutput(imagePath, message) {
+	message.channel.send({files:[imagePath]})
+}
+
+function emoticonOutput(emoteID, message) {
+    message.channel.send("hmmmmmmm");
+}
 
 client.login(config.token);
