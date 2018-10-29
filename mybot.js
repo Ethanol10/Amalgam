@@ -3,6 +3,7 @@ const client = new Discord.Client();
 const config = require("./config.json");
 const SimpleCommand = require("./SimpleCommand.json");
 
+//Parses the message and figures out what command has been typed by the user
 function parseCommand(command) {
 	var i;
 	for (i = 0; i < SimpleCommand.MasterCommandList.length; i++) { 
@@ -21,18 +22,20 @@ function parseCommand(command) {
 					return console.log("emote outputted");
 					break;
 				default:
-					console.log("Mistyped command my dude");
+					console.log("Mistyped type in JSON my dude");
 					break;
 			}
 		}
 	}
 }
 
+//Inital boot
 client.on("ready", () => {
   console.log("Ready to serve!");
   console.log("Please inform the developer if there are any bugs.");
 });
 
+//Check for message and send it to the parser
 client.on("message", (message) => {
   //Don't check the message if it does not start with the prefix or is from a bot.
 	if (message.author.bot) return;
@@ -40,16 +43,20 @@ client.on("message", (message) => {
 	parseCommand(message);	
 });
 
+//text output
 function textOutput(inputText, message) {
 	message.channel.send(inputText);
 }
 
+//image output
 function imageOutput(imagePath, message) {
 	message.channel.send({files:[imagePath]})
 }
 
+//emote output
 function emoticonOutput(emoteID, message) {
     message.channel.send("hmmmmmmm");
 }
 
+//refer to the JSON config file for the token
 client.login(config.token);
