@@ -139,7 +139,12 @@ function CRIfunction(message){
 			result = result + regionalIndicatorGenerator(messageSplit[i]);
 		}
 	}
-	message.channel.send(result);
+	if(result.length > 2000){
+		message.channel.send("Message too Long! Working on fixing that soon!");
+	}
+	else{
+		message.channel.send(result);
+	}
 }
 
 //refer to the JSON config file for the token
