@@ -11,7 +11,7 @@ function parseCommand(message) {
 	var messageSplit = messageContent.split(" ");
 
 	//Check if the Convert Regional Indicator function should be called.
-	if(messageSplit[0] === 'CRI'){
+	if(messageSplit[0] === 'cri'){
 		CRIfunction(message);
 	}
 	else{ //Should be depreciated soon
@@ -116,6 +116,9 @@ function regionalIndicatorGenerator(char){
 			break;
 		case "*":
 			return "asterisk:";
+			break;
+		case "$":
+			return "heavy_dollar_sign:";
 			break;
 		default:
 			return char;
