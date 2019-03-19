@@ -14,6 +14,9 @@ function parseCommand(message) {
 	if(messageSplit[0] === 'cri'){
 		CRIfunction(message);
 	}
+	else if(messageSplit[0] === 'help'){
+		message.channel.send("Format: $cri <input message here>");
+	}
 	else{ //Should be depreciated soon
 		for (i = 0; i < SimpleCommand.MasterCommandList.length; i++) { 
 			if(messageContent.includes(SimpleCommand.MasterCommandList[i].command)){
