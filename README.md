@@ -1,4 +1,4 @@
-# spicy-potatoes
-Some bot that is hacked together from three people with nothing to do.
+# CRIbot
 
-To add simple commands to the bot, modify the JSON file "SimpleCommands" or something.
+Converts text into Regional Indicator emojis.
+Characters that don't have an associated emoticon will be printed normally.
