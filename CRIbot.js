@@ -136,13 +136,13 @@ function CRIfunction(message){
 
 	for(i = 0; i < messageContent.length; i++){
 		if(regionalIndicatorGenerator(messageSplit[i]) === "    "){
-			result = result + regionalIndicatorGenerator(messageSplit[i]);
+			result = result + regionalIndicatorGenerator(messageSplit[i]) + " ";
 		}
 		else if(regionalIndicatorGenerator(messageSplit[i])[regionalIndicatorGenerator(messageSplit[i]).length - 1] === ":"){
-			result = result + "\:" + regionalIndicatorGenerator(messageSplit[i]);
+			result = result + "\:" + regionalIndicatorGenerator(messageSplit[i]) + " ";
 		}
 		else{
-			result = result + regionalIndicatorGenerator(messageSplit[i]);
+			result = result + regionalIndicatorGenerator(messageSplit[i]) + " ";
 		}
 	}
 	if(result.length > 2000){
