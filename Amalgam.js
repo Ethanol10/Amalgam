@@ -184,29 +184,9 @@ function mainHelpDialog(message){
 				name: " - $number [number]",
 				value: "Creates a random number between 1 and the inputted value."
 		  	},
-		  	{
-				name: " - $game (Not yet created)",
-				value: "Selects a random game from a list"
-		  	},
-		  	{
-				name: " - $gamelist (Not yet created)",
-				value: "Displays the list of games that can be selected"
-		  	},
 			{
 				name: " - $remind [number] [message]",
 				value: "Sends a reminder message after the inputted time(seconds) has passed."
-		  	},
-		  	{
-				name: " - $dice (Not yet created)",
-				value: "Let's play a game."
-		  	},
-		  	{
-				name: " - $score (Not yet created)",
-				value: "Displays your personal score for the dice game"
-		  	},
-		  	{
-				name: " - $coin (Not yet created)",
-				value: "Flips a coin."
 		  	},
 		  	{
 				name: "- $cri",
