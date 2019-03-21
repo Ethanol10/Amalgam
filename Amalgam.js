@@ -189,7 +189,7 @@ function mainHelpDialog(message){
 				value: "Sends a reminder message after the inputted time(seconds) has passed."
 		  	},
 		  	{
-				name: "- $cri",
+				name: "- $cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
 		 	}
 		]
