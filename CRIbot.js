@@ -26,7 +26,7 @@ function parseCommand(message) {
 	else if(messageSplit[0] === 'remind'){
 		remind(message);
 		if (messageSplit[1] > 0) {
-			message.channel.send("```" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1) + "```Reminder will be sent in " + messageSplit[1] + " minute(s)");
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + messageSplit[1] + " minute(s)]```");
 		}
 	}
 	else{ //Should be depreciated soon
