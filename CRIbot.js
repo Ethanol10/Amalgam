@@ -17,6 +17,18 @@ function parseCommand(message) {
 	else if(messageSplit[0] === 'help'){
 		message.channel.send("Format: $cri <input message here>");
 	}
+	else if(messageSplit[0] === 'number'){
+	    message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1))
+	}
+	else if(messageSplit[0] === 'clone'){
+	    message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]))
+	}
+	else if(messageSplit[0] === 'remind'){
+		remind(message);
+		if (messageSplit[1] > 0) {
+			message.channel.send("```" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1) + "```Reminder will be sent in " + messageSplit[1] + " minute(s)");
+		}
+	}
 	else{ //Should be depreciated soon
 		for (i = 0; i < SimpleCommand.MasterCommandList.length; i++) { 
 			if(messageContent.includes(SimpleCommand.MasterCommandList[i].command)){
@@ -152,6 +164,20 @@ function CRIfunction(message){
 		message.channel.send(result);
 	}
 }
+
+//reminder
+async function remind(message){
+  var messageContent = message.content.substring(config.prefix.length);
+  var messageSplit = messageContent.split(" ");
+  
+  let promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1)), messageSplit[1]*1000*60)
+  });
+
+  let result = await promise; 
+
+  message.channel.send(message.author + result);
+  }
 
 //refer to the JSON config file for the token
 client.login(config.token);
