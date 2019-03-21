@@ -22,11 +22,16 @@ function parseCommand(message) {
 			message.channel.send("Please input a number after the command.");
 		}
 		else{
-			message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1))
+			message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1));
 		}
 	}
 	else if(messageSplit[0] === 'clone'){
-	    message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]))
+		if(isNaN(messageSplit[1])){
+			message.channel.send("Please input a number after the command.");
+		}
+		else{
+			message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]));
+		}
 	}
 	else if(messageSplit[0] === 'remind'){
 		remind(message);
