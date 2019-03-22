@@ -22,17 +22,20 @@ function parseCommand(message) {
 			message.channel.send("Please input a number after the command.");
 		}
 		else{
-			message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1))
+			message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1));
 		}
 	}
 	else if(messageSplit[0] === 'clone'){
-	    message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]))
+		if(isNaN(messageSplit[1])){
+			message.channel.send("Please input a number after the command.");
+		}
+		else{
+			message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]));
+		}
 	}
 	else if(messageSplit[0] === 'remind'){
 		remind(message);
-		if (messageSplit[1] > 0) {
-			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + messageSplit[1] + " minute(s)]```");
-		}
+		time(message);
 	}
 }
 
@@ -149,17 +152,50 @@ function CRIfunction(message){
 
 //reminder
 async function remind(message){
-  var messageContent = message.content.substring(config.prefix.length);
-  var messageSplit = messageContent.split(" ");
+    var messageContent = message.content.substring(config.prefix.length);
+    var messageSplit = messageContent.split(" ");
   
-  let promise = new Promise((resolve, reject) => {
-    setTimeout(() => resolve(messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1)), messageSplit[1]*1000*60)
-  });
+    let promise = new Promise((resolve, reject) => {
+      setTimeout(() => resolve(messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1)), messageSplit[1]*1000*60)
+    });
 
-  let result = await promise; 
+    let result = await promise; 
 
-  message.channel.send(message.author + result);
+    message.channel.send(message.author + result);
   }
+  
+//time message
+function time(message){
+    var messageContent = message.content.substring(config.prefix.length);
+	var messageSplit = messageContent.split(" ");
+	
+	if(messageSplit[1] > 0){
+		if(messageSplit[1]/60 < 1 && messageSplit[1]%60 == 1){
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 minute]```");
+		}
+		else if(messageSplit[1]/60 < 1 && messageSplit[1]%60 != 1){
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + messageSplit[1] + " minutes]```");
+		}
+		else if(messageSplit[1]/60 == 1) {
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 hour]```");
+		}
+		else if(messageSplit[1]/60 > 1 && messageSplit[1]/60 < 2 && messageSplit[1]%60 == 1) {
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 hour and 1 minute]```");
+		}
+		else if(messageSplit[1]/60 > 1 && messageSplit[1]/60 < 2 && messageSplit[1]%60 != 1) {
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 hour and " + messageSplit[1]%60 + " minutes]```");
+		}
+		else if(messageSplit[1]/60 >= 2 && messageSplit[1]%60 == 0) {
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + Math.floor(messageSplit[1]/60) + " hours]```");
+		}
+		else if(messageSplit[1]/60 > 2 && messageSplit[1]%60 == 1) {
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + Math.floor(messageSplit[1]/60) + " hours and 1 minute]```");
+		}
+		else if(messageSplit[1]/60 > 2 && messageSplit[1]%60 != 1) {
+			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + Math.floor(messageSplit[1]/60) + " hours and " + messageSplit[1]%60 + " minutes]```");
+		}
+	}
+}
   
 function mainHelpDialog(message){
 	message.channel.send({embed: {
@@ -179,32 +215,12 @@ function mainHelpDialog(message){
 				name: " - $number [number]",
 				value: "Creates a random number between 1 and the inputted value."
 		  	},
-		  	{
-				name: " - $game (Not yet created)",
-				value: "Selects a random game from a list"
-		  	},
-		  	{
-				name: " - $gamelist (Not yet created)",
-				value: "Displays the list of games that can be selected"
-		  	},
 			{
 				name: " - $remind [number] [message]",
 				value: "Sends a reminder message after the inputted time(seconds) has passed."
 		  	},
 		  	{
-				name: " - $dice (Not yet created)",
-				value: "Let's play a game."
-		  	},
-		  	{
-				name: " - $score (Not yet created)",
-				value: "Displays your personal score for the dice game"
-		  	},
-		  	{
-				name: " - $coin (Not yet created)",
-				value: "Flips a coin."
-		  	},
-		  	{
-				name: "- $cri",
+				name: "- $cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
 		 	}
 		]
