@@ -11,10 +11,16 @@ function parseCommand(message) {
 
 	//Check if the Convert Regional Indicator function should be called.
 	if(messageSplit[0] === 'cri'){
+		message.delete(1000);
 		CRIfunction(message);
 	}
 	else if(messageSplit[0] === 'help' || messageSplit[0] === 'command'){
+		message.delete(1000);
 		mainHelpDialog(message);
+	}
+	else if(messageSplit[0] === "crihelp"){
+		message.delete(1000);
+		criHelp(message);
 	}
 	else if(messageSplit[0] === 'number'){
 		if(isNaN(messageSplit[1])){
@@ -242,6 +248,33 @@ function mainHelpDialog(message){
 		 	}
 		]
 	  }
+	  });
+}
+
+function criHelp(message){
+	message.channel.send({embed: {
+				color: Math.floor(Math.random()*16777215),  //random colour
+				author: {
+					name: client.user.username,
+					icon_url: client.user.avatarURL
+				},
+				title: "**__CRI Help__**",
+				description: "More information on how to use $cri",
+				fields: [
+					{
+						name: " - $cri \"message\" message2",
+						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: message2\""
+					},
+					{
+						name: "- $cri \"message1 message2",
+						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:one:      \:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:two:\""
+					},
+					{
+						name: "- $cri message1 message2",
+						value: "The output will be \"message1 message2\""
+					}
+				]
+			}
 	  });
 }
 //refer to the JSON config file for the token
