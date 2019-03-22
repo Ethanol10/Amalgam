@@ -36,6 +36,9 @@ function parseCommand(message) {
 		remind(message);
 		time(message);
 	}
+	else if(messageSplit[0] === 'coin'){
+		coin(message);
+	}
 }
 
 //Inital boot
@@ -195,6 +198,17 @@ function time(message){
 		}
 	}
 }
+
+function coin(message){
+	var coin = (Math.floor((Math.random() * 2) + 1))
+	
+	if (coin == 1) {
+		message.channel.send("Heads!")
+	}
+	else if (coin == 2) {
+		message.channel.send("Tails!")
+	}
+  }
   
 function mainHelpDialog(message){
 	message.channel.send({embed: {
@@ -216,8 +230,12 @@ function mainHelpDialog(message){
 		  	},
 			{
 				name: " - $remind [number] [message]",
-				value: "Sends a reminder message after the inputted time(seconds) has passed."
+				value: "Sends a reminder message after the inputted time(minutes) has passed."
 		  	},
+			{
+				name: " - %coin",
+				value: "Flips a coin."
+			},
 		  	{
 				name: "- $cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
