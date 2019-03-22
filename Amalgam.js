@@ -233,7 +233,7 @@ function mainHelpDialog(message){
 				value: "Sends a reminder message after the inputted time(minutes) has passed."
 		  	},
 			{
-				name: " - %coin",
+				name: " - $coin",
 				value: "Flips a coin."
 			},
 		  	{
