@@ -1,7 +1,6 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
-const SimpleCommand = require("./SimpleCommand.json");
 
 //Parses the message and figures out what command has been typed by the user
 function parseCommand(message) {
