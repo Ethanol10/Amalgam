@@ -1,0 +1,60 @@
+{
+    "specialCharacter":[
+        {   
+            "inputChar": " ", 
+            "returnChar": "    "
+        },
+        {   
+            "inputChar": "?", 
+            "returnChar": "question:"
+        },
+        {   
+            "inputChar": "!", 
+            "returnChar": "exclamation:"
+        },
+        {   
+            "inputChar": "1", 
+            "returnChar": "one:"
+        },
+        {   
+            "inputChar": "2", 
+            "returnChar": "two:"
+        },
+        {
+            "inputChar": "3",
+            "returnChar": "three:"
+        },
+        {
+            "inputChar": "4",
+            "returnChar": "four:"
+        },
+        {
+            "inputChar": "5",
+            "returnChar": "five:"
+        },
+        {
+            "inputChar": "6",
+            "returnChar": "six:"
+        },
+        {
+            "inputChar": "7",
+            "returnChar": "seven:"
+        },
+        {
+            "inputChar": "8",
+            "returnChar": "eight:"
+        },
+        {
+            "inputChar": "9",
+            "returnChar": "nine:"
+        },
+        {
+            "inputChar": "*",
+            "returnChar": "asterix:"
+        },
+        {
+            "inputChar": "$",
+            "returnChar": "heavy_dollar_sign:"
+        }
+    ]
+}

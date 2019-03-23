@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
+const specChar = require("./specialCharacter.json");
 
 //Parses the message and figures out what command has been typed by the user
 function parseCommand(message) {
@@ -9,6 +10,7 @@ function parseCommand(message) {
 	var messageContent = message.content.substring(config.prefix.length);
 	var messageSplit = messageContent.split(" ");
 
+	console.log("parseCommand function called!");
 	//Check if the Convert Regional Indicator function should be called.
 	if(messageSplit[0] === 'cri'){
 		message.delete(1000);
@@ -49,31 +51,35 @@ function parseCommand(message) {
 
 //Inital boot
 client.on("ready", () => {
-  console.log("Ready to serve!");
-  console.log("Please inform the developer if there are any bugs.");
+  console.log("Amalgam is ready to serve!");
 });
 
 //Check for message and send it to the parser
 client.on("message", (message) => {
   //Don't check the message if it does not start with the prefix or is from a bot.
 	if (message.author.bot || message.content.indexOf(config.prefix) !== 0) return;
-
+	
+	console.log("Message Recieved!");
 	parseCommand(message);	
 });
 
 //text output
-function textOutput(inputText, message) {
+function textOutput(inputText, message){
+	console.log("textOutput function called!");
 	message.channel.send(inputText);
 }
 
 //image output
-function imageOutput(imagePath, message) {
+function imageOutput(imagePath, message){
+	console.log("imageOutput function called!");
 	message.channel.send({files:[imagePath]});
 }
 
 function regionalIndicatorGenerator(char){
 	var regIndStdString = "regional_indicator_";
 	var alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+	console.log("char: " + char);
 	char = char.toLowerCase();
 
 	if(char.length != 1){
@@ -85,76 +91,63 @@ function regionalIndicatorGenerator(char){
 	if(alphabet.includes(char)){
 		return regIndStdString + char + ":";
 	}
-	switch(char){
-		case " ":
-			return "    ";
-			break;
-		case "?":
-			return "question:";
-			break;
-		case "!":
-			return "exclamation:";
-			break;
-		case "1":
-			return "one:";
-			break;
-		case "2":
-			return "two:";
-			break;
-		case "3":
-			return "three:";
-			break;
-		case "4":
-			return "four:";
-			break;
-		case "5":
-			return "five:";
-			break;
-		case "6":
-			return "six:";
-			break;
-		case "7":
-			return "seven:";
-			break;
-		case "8":
-			return "eight:";
-			break;
-		case "9":
-			return "nine:";
-			break;
-		case "*":
-			return "asterisk:";
-			break;
-		case "$":
-			return "heavy_dollar_sign:";
-			break;
-		default:
-			return char;
-			break;
+
+	for (j = 0; j < specChar.specialCharacter.length; j++) {
+		
+		if(char === specChar.specialCharacter[j].inputChar){
+			return specChar.specialCharacter[j].returnChar;
+		}
 	}
+
+	return char;
 }
 
 function CRIfunction(message){
 	var messageContent = message.content.substring(config.prefix.length + "CRI ".length);
 	var messageSplit = messageContent.split("");
 	var result = "";
+	var isCRIed = false;
+
+	console.log("CRIfunction called!");
+	console.log("Input message: " + messageContent);
 
 	for(i = 0; i < messageContent.length; i++){
-		if(regionalIndicatorGenerator(messageSplit[i]) === "    "){
-			result = result + regionalIndicatorGenerator(messageSplit[i]) + " ";
+		//Check if the message should be CRI-ed
+		if(messageSplit[i] === "<"){
+			isCRIed = true;
+			i++; //Increment past the character
 		}
-		else if(regionalIndicatorGenerator(messageSplit[i])[regionalIndicatorGenerator(messageSplit[i]).length - 1] === ":"){
-			result = result + "\:" + regionalIndicatorGenerator(messageSplit[i]) + " ";
+		else if(messageSplit[i] === ">"){
+			isCRIed = false;
+			i++; //Increment past the character
 		}
-		else{
-			result = result + regionalIndicatorGenerator(messageSplit[i]) + " ";
+		
+		//Start CRIing if the message requires to be CRIed
+		if(isCRIed){
+			console.log("messageSplit[i]: " + messageSplit[i] + " " + i );
+			var regIndGenChar = regionalIndicatorGenerator(messageSplit[i]);
+		
+			if(regIndGenChar === "    "){
+				result = result + regIndGenChar + " ";
+			}
+			else if(regIndGenChar[regIndGenChar.length - 1] === ":"){
+				result = result + "\:" + regIndGenChar + " ";
+			}
+			else{
+				result = result + regIndGenChar + " ";
+			}
 		}
+		else if(!isCRIed){
+			if(messageSplit[i] !== undefined){
+				result = result + messageSplit[i];
+			}
+		} 
 	}
 	if(result.length > 2000){
 		message.channel.send("Message too Long! Working on fixing that soon!");
 	}
 	else{
-		message.channel.send(result);
+		embedMessage(message, result);
 	}
 }
 
@@ -162,7 +155,9 @@ function CRIfunction(message){
 async function remind(message){
     var messageContent = message.content.substring(config.prefix.length);
     var messageSplit = messageContent.split(" ");
-  
+	
+		console.log("remind function called!");
+
     let promise = new Promise((resolve, reject) => {
       setTimeout(() => resolve(messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1)), messageSplit[1]*1000*60)
     });
@@ -174,9 +169,11 @@ async function remind(message){
   
 //time message
 function time(message){
-    var messageContent = message.content.substring(config.prefix.length);
+  var messageContent = message.content.substring(config.prefix.length);
 	var messageSplit = messageContent.split(" ");
-	
+
+	console.log("Time function called!");
+
 	if(messageSplit[1] > 0){
 		if(messageSplit[1]/60 < 1 && messageSplit[1]%60 == 1){
 			message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 minute]```");
@@ -208,6 +205,7 @@ function time(message){
 function coin(message){
 	var coin = (Math.floor((Math.random() * 2) + 1))
 	
+	console.log("coin function called!");
 	if (coin == 1) {
 		message.channel.send("Heads!")
 	}
@@ -217,6 +215,8 @@ function coin(message){
   }
   
 function mainHelpDialog(message){
+
+	console.log("mainHelpDialog function called!");
 	message.channel.send({embed: {
 		color: Math.floor(Math.random()*16777215),  //random colour
 		author: {
@@ -252,6 +252,8 @@ function mainHelpDialog(message){
 }
 
 function criHelp(message){
+
+	console.log("criHelp function called!");
 	message.channel.send({embed: {
 				color: Math.floor(Math.random()*16777215),  //random colour
 				author: {
@@ -262,11 +264,11 @@ function criHelp(message){
 				description: "More information on how to use $cri",
 				fields: [
 					{
-						name: " - $cri \"message\" message2",
+						name: " - $cri <message> message2",
 						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: message2\""
 					},
 					{
-						name: "- $cri \"message1 message2",
+						name: "- $cri <message1 message2",
 						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:one:      \:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:two:\""
 					},
 					{
@@ -276,6 +278,20 @@ function criHelp(message){
 				]
 			}
 	  });
+}
+
+function embedMessage(message, messageContent){
+	console.log("embedMessage function called");
+	message.channel.send({embed: {
+			color: Math.floor(Math.random()*16777215),  //random colour
+			author: {
+				name: message.author.username,
+				icon_url: message.author.avatarURL
+			},
+			title: "",
+			description: messageContent
+		}
+	});
 }
 //refer to the JSON config file for the token
 client.login(config.token);
