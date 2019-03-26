@@ -47,6 +47,9 @@ function parseCommand(message) {
 	else if(messageSplit[0] === 'coin'){
 		coin(message);
 	}
+	else if(messageSplit[0] === 'calc'){
+		calculator(message, messageContent)
+	}
 }
 
 //Inital boot
@@ -212,8 +215,47 @@ function coin(message){
 	else if (coin == 2) {
 		message.channel.send("Tails!")
 	}
-  }
-  
+}
+
+function calculator(message, messageContent){
+	var messageSplit = messageContent.split(" ");
+	var validChar = "+-/*^%";
+	var result;
+	console.log("calculator function called!");
+	
+	if(isNaN(messageSplit[1]) || isNaN(messageSplit[3])){
+		message.channel.send("Invalid number in argument 1 or 3");
+		console.log("Invalid Num in argument 1/3");
+		return;
+	}
+	if(!validChar.includes(messageSplit[2])){
+		message.channel.send("Invalid operand in argument 2");
+		console.log("Invalid operator in argument 2");
+		return;
+	}
+
+	if(messageSplit[2] === "+"){
+		result = additionFunc(messageSplit[1], messageSplit[3]);
+	}
+	else if(messageSplit[2] === "-"){
+		result = subtractFunc(messageSplit[1], messageSplit[3]);
+	}
+	else if(messageSplit[2] === "/"){
+		result = divisionFunc(messageSplit[1], messageSplit[3]);
+	}
+	else if(messageSplit[2] === "*"){
+		result = multiplyFunc(messageSplit[1], messageSplit[3]);
+	}
+	else if(messageSplit[2] === "^"){
+		result = powerToFunc(messageSplit[1], messageSplit[3]);
+	}
+	else if(messageSplit[2] === "%"){
+		result = moduloFunc(messageSplit[1], messageSplit[3]);
+	}
+
+	message.channel.send(result);
+}
+
 function mainHelpDialog(message){
 
 	console.log("mainHelpDialog function called!");
@@ -292,6 +334,30 @@ function embedMessage(message, messageContent){
 			description: messageContent
 		}
 	});
+}
+
+function additionFunc(num1, num2){
+	return Number(num1) + Number(num2);
+}
+
+function subtractFunc(num1, num2){
+	return Number(num1) - Number(num2);
+}
+
+function multiplyFunc(num1, num2){
+	return Number(num1) * Number(num2);
+}
+
+function divisionFunc(num1, num2){
+	return Number(num1) / Number(num2);
+}
+
+function powerToFunc(num1, power){
+	return Math.pow(Number(num1), Number(power));
+}
+
+function moduloFunc(num1, num2){
+	return Number(num1) % Number(num2);
 }
 //refer to the JSON config file for the token
 client.login(config.token);
