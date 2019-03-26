@@ -49,6 +49,10 @@
             "returnChar": "nine:"
         },
         {
+            "inputChar": "0",
+            "returnChar": "zero:"
+        },
+        {
             "inputChar": "*",
             "returnChar": "asterix:"
         },
