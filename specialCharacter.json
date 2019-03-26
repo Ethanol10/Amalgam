@@ -59,6 +59,14 @@
         {
             "inputChar": "$",
             "returnChar": "heavy_dollar_sign:"
+        },
+        {
+            "inputChar": "-",
+            "returnChar": "heavy_minus_sign"
+        },
+        {
+            "inputChar": "+",
+            "returnChar": "heavy_plus_sign"
         }
     ]
 }
