@@ -24,6 +24,10 @@ function parseCommand(message) {
 		message.delete(1000);
 		criHelp(message);
 	}
+	else if(messageSplit[0] === "calchelp"){
+		inputStr = "**" + config.prefix + "calchelp**\n Available operands are as follows: \n Addition: + \n Subtraction: - \n Multiplication: * \n Division: / \n Modulo: % \n Exponent:^"
+		embedMessage(message, inputStr);
+	}
 	else if(messageSplit[0] === 'number'){
 		if(isNaN(messageSplit[1])){
 			message.channel.send("Please input a number after the command.");
@@ -269,27 +273,27 @@ function mainHelpDialog(message){
 		description: "Looks like your tiny brain couldn't remember all the commands. \nHere they are I guess:",
 		fields: [
 			{
-				name: " - $clone [number] [message]",
+				name: "- " + config.prefix + "clone [number] [message]",
 				value: "Duplicates an inputted message."
 		  	},
 		  	{
-				name: " - $number [number]",
+				name: "- " + config.prefix + "number [number]",
 				value: "Creates a random number between 1 and the inputted value."
 		  	},
 			{
-				name: " - $remind [number] [message]",
+				name: "- " + config.prefix + "remind [number] [message]",
 				value: "Sends a reminder message after the inputted time(minutes) has passed."
 		  	},
 			{
-				name: " - $coin",
+				name: "- " + config.prefix + "coin",
 				value: "Flips a coin."
 			},
 			{
-				name: "- $calc [number] [operator] [number]",
+				name: "- " + config.prefix + "calc [number] [operator] [number]",
 				value: "Calculates two numbers with an operator. See $calchelp for a list of operands."
 			},
 		  {	
-				name: "- $cri [message]",
+				name: "- " + config.prefix + "cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
 		 	}
 		]
@@ -310,22 +314,21 @@ function criHelp(message){
 				description: "More information on how to use $cri",
 				fields: [
 					{
-						name: " - $cri <message> message2",
+						name: "- " + config.prefix + "cri <message> message2",
 						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: message2\""
 					},
 					{
-						name: "- $cri <message1 message2",
+						name: "- " + config.prefix +  "cri <message1 message2",
 						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:one:      \:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:two:\""
 					},
 					{
-						name: "- $cri message1 message2",
+						name: "- " + config.prefix + "cri message1 message2",
 						value: "The output will be \"message1 message2\""
 					}
 				]
 			}
 	  });
 }
-
 
 function embedMessage(message, messageContent){
 	console.log("embedMessage function called");
