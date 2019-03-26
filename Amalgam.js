@@ -284,7 +284,11 @@ function mainHelpDialog(message){
 				name: " - $coin",
 				value: "Flips a coin."
 			},
-		  	{
+			{
+				name: "- $calc [number] [operator] [number]",
+				value: "Calculates two numbers with an operator. See $calchelp for a list of operands."
+			},
+		  {	
 				name: "- $cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
 		 	}
@@ -321,6 +325,7 @@ function criHelp(message){
 			}
 	  });
 }
+
 
 function embedMessage(message, messageContent){
 	console.log("embedMessage function called");
