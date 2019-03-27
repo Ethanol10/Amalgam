@@ -232,31 +232,31 @@ function calculator(message, messageContent){
 		console.log("Invalid Num in argument 1/3");
 		return;
 	}
-	if(!validChar.includes(messageSplit[2])){
-		message.channel.send("Invalid operand in argument 2");
-		console.log("Invalid operator in argument 2");
-		return;
-	}
 
-	if(messageSplit[2] === "+"){
-		result = additionFunc(messageSplit[1], messageSplit[3]);
+	switch(messageSplit[2]){
+		case "+":
+			result = additionFunc(messageSplit[1], messageSplit[3]);
+			break;
+		case "-":
+			result = subtractFunc(messageSplit[1], messageSplit[3]);
+			break;
+		case "*":
+			result = multiplyFunc(messageSplit[1], messageSplit[3]);
+			break;
+		case "/":
+			result = divisionFunc(messageSplit[1], messageSplit[3]);
+			break;
+		case "^":
+			result = powerToFunc(messageSplit[1], messageSplit[3]);
+			break;
+		case "%":
+			result = moduloFunc(messageSplit[1], messageSplit[3]);
+			break;
+		default:
+			message.channel.send("Invalid operand in argument 2");
+			console.log("Invalid operand in argument 2");
+			break;
 	}
-	else if(messageSplit[2] === "-"){
-		result = subtractFunc(messageSplit[1], messageSplit[3]);
-	}
-	else if(messageSplit[2] === "/"){
-		result = divisionFunc(messageSplit[1], messageSplit[3]);
-	}
-	else if(messageSplit[2] === "*"){
-		result = multiplyFunc(messageSplit[1], messageSplit[3]);
-	}
-	else if(messageSplit[2] === "^"){
-		result = powerToFunc(messageSplit[1], messageSplit[3]);
-	}
-	else if(messageSplit[2] === "%"){
-		result = moduloFunc(messageSplit[1], messageSplit[3]);
-	}
-
 	message.channel.send(result);
 }
 
