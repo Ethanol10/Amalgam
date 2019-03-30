@@ -54,6 +54,11 @@ function parseCommand(message) {
 	else if(messageSplit[0] === 'calc'){
 		calculator(message, messageContent)
 	}
+	else if(messageSplit[0] === 'mshrg'){
+		message.delete(1000);
+		console.log("mshrg command called!");
+		embedMessage(message, "¯\\\_(ツ)_/¯");
+	}
 }
 
 //Inital boot
