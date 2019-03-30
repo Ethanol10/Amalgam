@@ -125,11 +125,11 @@ function CRIfunction(message){
 
 	for(i = 0; i < messageContent.length; i++){
 		//Check if the message should be CRI-ed
-		if(messageSplit[i] === "<"){
+		if(messageSplit[i] === "{"){
 			isCRIed = true;
 			i++; //Increment past the character
 		}
-		else if(messageSplit[i] === ">"){
+		else if(messageSplit[i] === "}"){
 			isCRIed = false;
 			i++; //Increment past the character
 		}
@@ -295,11 +295,11 @@ function mainHelpDialog(message){
 			},
 			{
 				name: "- " + config.prefix + "calc [number] [operator] [number]",
-				value: "Calculates two numbers with an operator. See $calchelp for a list of operands."
+				value: "Calculates two numbers with an operator. See **$calchelp** for a list of operands."
 			},
 		  {	
 				name: "- " + config.prefix + "cri [message]",
-				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
+				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information."
 		 	}
 		]
 	  }
@@ -319,11 +319,11 @@ function criHelp(message){
 				description: "More information on how to use $cri",
 				fields: [
 					{
-						name: "- " + config.prefix + "cri <message> message2",
+						name: "- " + config.prefix + "cri {message} message2",
 						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: message2\""
 					},
 					{
-						name: "- " + config.prefix +  "cri <message1 message2",
+						name: "- " + config.prefix +  "cri {message1 message2",
 						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:one:      \:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:two:\""
 					},
 					{
