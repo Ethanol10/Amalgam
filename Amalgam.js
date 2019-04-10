@@ -14,7 +14,7 @@ function parseCommand(message) {
 	//Check if the Convert Regional Indicator function should be called.
 	if(messageSplit[0] === 'cri'){
 		message.delete(1000);
-		CRIfunction(message);
+		(messageSplit[1].toLowerCase() === '-embed') ? CRIfunction(message, true) : CRIfunction(message, false);
 	}
 	else if(messageSplit[0] === 'help' || messageSplit[0] === 'command'){
 		message.delete(1000);
@@ -58,6 +58,10 @@ function parseCommand(message) {
 		message.delete(1000);
 		console.log("mshrg command called!");
 		embedMessage(message, "¯\\\_(ツ)_/¯");
+	}
+	else if(messageSplit[0] === 'clap'){
+		message.delete(1000);
+		(messageSplit[1].toLowerCase() === '-embed') ? gatekeepingClap(message, true): gatekeepingClap(message, false);	
 	}
 }
 
@@ -114,8 +118,14 @@ function regionalIndicatorGenerator(char){
 	return char;
 }
 
-function CRIfunction(message){
-	var messageContent = message.content.substring(config.prefix.length + "CRI ".length);
+function CRIfunction(message, isEmbed){
+
+	if(isEmbed){
+		var messageContent = message.content.substring(config.prefix.length + "CRI -embed".length);
+	}
+	else{
+		var messageContent = message.content.substring(config.prefix.length + "CRI ".length);
+	}
 	var messageSplit = messageContent.split("");
 	var result = "";
 	var isCRIed = false;
@@ -159,7 +169,13 @@ function CRIfunction(message){
 		message.channel.send("Message too Long! Working on fixing that soon!");
 	}
 	else{
-		embedMessage(message, result);
+		if(isEmbed){
+			embedMessage(message, result);
+		}
+		else{
+			console.log(isEmbed);
+			message.channel.send(result);
+		}
 	}
 }
 
@@ -265,6 +281,40 @@ function calculator(message, messageContent){
 	message.channel.send(result);
 }
 
+function gatekeepingClap(message, isEmbed){
+	var result = "";
+	var clapStr = "clap:"
+
+	console.log(isEmbed);
+	if(isEmbed){
+		console.log("isembed");
+		var messageContent = message.content.substring(config.prefix.length + "clap -embed ".length);
+	}
+	else{
+		var messageContent = message.content.substring(config.prefix.length + "clap ".length);
+	}
+	console.log("gatekeepingClap function called");
+
+	result += "\:" + clapStr; 
+	for(i = 0; i < messageContent.length; i++){
+		if(messageContent[i] === " "){
+			result += "\:" + clapStr; 
+		}
+		else{
+			result += messageContent[i];
+		}
+	}
+	result += "\:" + clapStr; 
+	
+	
+	if(isEmbed){
+		embedMessage(message, result);
+	}
+	else{
+		message.channel.send(result);
+	}
+}
+
 function mainHelpDialog(message){
 
 	console.log("mainHelpDialog function called!");
@@ -300,7 +350,15 @@ function mainHelpDialog(message){
 		  {	
 				name: "- " + config.prefix + "cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information."
-		 	}
+			},
+			{
+				name: "- " + config.prefix + "mshrg",
+				value: "Prints ¯\\\_(ツ)_/¯. This is useful for mobile discord users."
+			},
+			{
+				name: "- " + config.prefix + "clap [message]",
+				value: "Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message)"
+			}
 		]
 	  }
 	  });
