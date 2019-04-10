@@ -59,6 +59,9 @@ function parseCommand(message) {
 		console.log("mshrg command called!");
 		embedMessage(message, "¯\\\_(ツ)_/¯");
 	}
+	else if(messageSplit[0] === 'clap'){
+		gatekeepingClap(message);
+	}
 }
 
 //Inital boot
@@ -265,6 +268,27 @@ function calculator(message, messageContent){
 	message.channel.send(result);
 }
 
+function gatekeepingClap(message){
+	var result = "";
+	var clapStr = "clap:"
+	var messageContent = message.content.substring(config.prefix.length + "clap ".length);
+	console.log("gatekeepingClap function called");
+
+	result += "\:" + clapStr; 
+	for(i = 0; i < messageContent.length; i++){
+		if(messageContent[i] === " "){
+			result += "\:" + clapStr; 
+		}
+		else{
+			result += messageContent[i];
+		}
+	}
+
+	result += "\:" + clapStr; 
+	message.channel.send(result);
+	embedMessage(message, result);
+}
+
 function mainHelpDialog(message){
 
 	console.log("mainHelpDialog function called!");
@@ -300,7 +324,15 @@ function mainHelpDialog(message){
 		  {	
 				name: "- " + config.prefix + "cri [message]",
 				value: "Converts \*English\* characters into Regional Indicator emojis. Type $crihelp for more information."
-		 	}
+			},
+			{
+				name: "- " + config.prefix + "mshrg",
+				value: "Prints ¯\\\_(ツ)_/¯. This is useful for mobile discord users."
+			},
+			{
+				name: "- " + config.prefix + "clap [message]",
+				value: "Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message)"
+			}
 		]
 	  }
 	  });
