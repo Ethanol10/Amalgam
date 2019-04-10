@@ -60,6 +60,7 @@ function parseCommand(message) {
 		embedMessage(message, "¯\\\_(ツ)_/¯");
 	}
 	else if(messageSplit[0] === 'clap'){
+		message.delete(1000);
 		(messageSplit[1].toLowerCase() === '-embed') ? gatekeepingClap(message, true): gatekeepingClap(message, false);	
 	}
 }
