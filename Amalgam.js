@@ -349,7 +349,7 @@ function mainHelpDialog(message){
 			},
 		  {	
 				name: "- " + config.prefix + "cri [message]",
-				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information."
+				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information. If you want the message in an embed, please type '-embed' between the command and the message."
 			},
 			{
 				name: "- " + config.prefix + "mshrg",
@@ -357,7 +357,7 @@ function mainHelpDialog(message){
 			},
 			{
 				name: "- " + config.prefix + "clap [message]",
-				value: "Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message)"
+				value: "Prints a \:clap: for every space in the input string. If you want the message in an embed, please type '-embed' between the command and the message.(It does not include the space between the command and the message)"
 			}
 		]
 	  }
