@@ -12,62 +12,75 @@ function parseCommand(message) {
 
 	console.log("parseCommand function called!");
 	//Check if the Convert Regional Indicator function should be called.
-	if(messageSplit[0] === 'cri'){
-		message.delete(1000);
-		(messageSplit[1].toLowerCase() === '-embed') ? CRIfunction(message, true) : CRIfunction(message, false);
-	}
-	else if(messageSplit[0] === 'help' || messageSplit[0] === 'command'){
-		message.delete(1000);
-		mainHelpDialog(message);
-	}
-	else if(messageSplit[0] === "crihelp"){
-		message.delete(1000);
-		criHelp(message);
-	}
-	else if(messageSplit[0] === "calchelp"){
-		inputStr = "**" + config.prefix + "calchelp**\n Available operands are as follows: \n Addition: + \n Subtraction: - \n Multiplication: * \n Division: / \n Modulo: % \n Exponent:^"
-		embedMessage(message, inputStr);
-	}
-	else if(messageSplit[0] === 'number'){
-		if(isNaN(messageSplit[1])){
-			message.channel.send("Please input a number after the command.");
+	switch(messageSplit[0]){
+		case "cri":
+			message.delete(1000);
+			(messageSplit[1].toLowerCase() === '-embed') ?
+			 			CRIfunction(message, true) : CRIfunction(message, false);
+			break;
+		case "help":
+			message.delete(1000);
+			mainHelpDialog(message);
+			break;	
+		case "command":
+			message.delete(1000);
+			mainHelpDialog(message);
+			break;
+		case "crihelp":
+			message.delete(1000);
+			criHelp(message);
+			break;
+		case "calchelp":
+			inputStr = "**" + config.prefix + "calchelp**\n Available operands are as follows: \n Addition: + \n Subtraction: - \n Multiplication: * \n Division: / \n Modulo: % \n Exponent:^"
+			embedMessage(message, inputStr);
+			break;	
+		case "number":
+			console.log("number command called!");
+			if(isNaN(messageSplit[1])){
+				message.channel.send("Please input a number after the command.");
+			}
+			else{
+				message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1));
+			}
+			break;
+		case "clone":
+			if(isNaN(messageSplit[1])){
+				message.channel.send("Please input a number after the command.");
+			}
+			else{
+				message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]));
+			}
+			break;
+		case "remind":
+			remind(message);
+			time(message);
+			break;	
+		case "coin":
+			coin(message);
+			break;
+		case "calc":
+			calculator(message, messageContent);
+			break;
+		case "mshrg":
+			message.delete(1000);
+			console.log("mshrg command called!");
+			embedMessage(message, "¯\\\_(ツ)_/¯");
+			break;	
+		case "clap":
+			message.delete(1000);
+			(messageSplit[1].toLowerCase() === '-embed') ? gatekeepingClap(message, true): gatekeepingClap(message, false);	
+			break;	
+		case "mask":
+			console.log("mask command called!");
+			maskMessage(message, messageContent);
+			break;	
 		}
-		else{
-			message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1));
-		}
-	}
-	else if(messageSplit[0] === 'clone'){
-		if(isNaN(messageSplit[1])){
-			message.channel.send("Please input a number after the command.");
-		}
-		else{
-			message.channel.send((messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + " ").repeat(messageSplit[1]));
-		}
-	}
-	else if(messageSplit[0] === 'remind'){
-		remind(message);
-		time(message);
-	}
-	else if(messageSplit[0] === 'coin'){
-		coin(message);
-	}
-	else if(messageSplit[0] === 'calc'){
-		calculator(message, messageContent)
-	}
-	else if(messageSplit[0] === 'mshrg'){
-		message.delete(1000);
-		console.log("mshrg command called!");
-		embedMessage(message, "¯\\\_(ツ)_/¯");
-	}
-	else if(messageSplit[0] === 'clap'){
-		message.delete(1000);
-		(messageSplit[1].toLowerCase() === '-embed') ? gatekeepingClap(message, true): gatekeepingClap(message, false);	
-	}
 }
 
 //Inital boot
 client.on("ready", () => {
-  console.log("Amalgam is ready to serve!");
+	console.log("Amalgam is ready to serve!");
+	client.user.setActivity(config.prefix + "help");
 });
 
 //Check for message and send it to the parser
@@ -78,12 +91,6 @@ client.on("message", (message) => {
 	console.log("Message Recieved!");
 	parseCommand(message);	
 });
-
-//text output
-function textOutput(inputText, message){
-	console.log("textOutput function called!");
-	message.channel.send(inputText);
-}
 
 //image output
 function imageOutput(imagePath, message){
@@ -285,6 +292,7 @@ function gatekeepingClap(message, isEmbed){
 	var result = "";
 	var clapStr = "clap:"
 
+	//Check if embedded is required
 	console.log(isEmbed);
 	if(isEmbed){
 		console.log("isembed");
@@ -295,6 +303,7 @@ function gatekeepingClap(message, isEmbed){
 	}
 	console.log("gatekeepingClap function called");
 
+	//generate clap string
 	result += "\:" + clapStr; 
 	for(i = 0; i < messageContent.length; i++){
 		if(messageContent[i] === " "){
@@ -306,13 +315,42 @@ function gatekeepingClap(message, isEmbed){
 	}
 	result += "\:" + clapStr; 
 	
-	
+	//Send it
 	if(isEmbed){
 		embedMessage(message, result);
 	}
 	else{
 		message.channel.send(result);
 	}
+}
+
+function maskMessage(message, messageContent){
+	//Get the mentioned user from the message
+	var memberUser = message.mentions.users.first();
+	/*
+		messageContent is sent with data
+		mask <user> <message>
+		we are going to remove mask and <user> and reconstruct the message.
+	*/
+	var messageSplit = messageContent.split(" ");
+	var result = "";
+	
+	for(i = 2; i < messageSplit.length; i++){
+		result += messageSplit[i] + " ";
+	}
+
+	console.log("user message= " + result);
+	//send the message and mask the message with a user's chosen victim
+	message.channel.send({embed: {
+		color: Math.floor(Math.random()*16777215),  //random colour
+		author: {
+			name: memberUser.username,
+			icon_url: memberUser.avatarURL
+		},
+		title: "",
+		description: result
+	}
+	});
 }
 
 function mainHelpDialog(message){
