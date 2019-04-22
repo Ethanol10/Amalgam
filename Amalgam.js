@@ -367,7 +367,7 @@ function mainHelpDialog(message){
 		fields: [
 			{
 				name: "- " + config.prefix + "clone [number] [message]",
-				value: "Duplicates an inputted message."
+				value: "Duplicates an inputted message by the number specified."
 		  	},
 		  	{
 				name: "- " + config.prefix + "number [number]",

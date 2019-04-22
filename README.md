@@ -12,7 +12,7 @@ For the program to run, you need a config.json file with the fields
 ~~~~
 
 **$clone [number] [message]**
-*Duplicates an inputted message.*
+*Duplicates an inputted message by the number specified.*
 
 **$number [number]**
 *Creates a random number between 1 and the inputted value.*
