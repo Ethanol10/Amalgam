@@ -2,11 +2,14 @@
 
 A multi-function bot that runs with silly commands.
 For the program to run, you need a config.json file with the fields 
+
+~~~~
 {
     "token": <Discord Bot token>,
     "prefix": <any prefix>,
     "ownerID": <Owner of the bot>
 }
+~~~~
 
 **$clone [number] [message]**
 *Duplicates an inputted message.*
@@ -31,3 +34,6 @@ For the program to run, you need a config.json file with the fields
 
 **$clap [message]**
 *Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message*
+
+**$mask [targetUser] [message]**
+*Masks your message as the target user's message by sending an embedded message with the target user's name on it*

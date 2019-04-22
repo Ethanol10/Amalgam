@@ -396,6 +396,10 @@ function mainHelpDialog(message){
 			{
 				name: "- " + config.prefix + "clap [message]",
 				value: "Prints a \:clap: for every space in the input string. If you want the message in an embed, \*\*please type '-embed'\*\* between the command and the message.(It does not include the space between the command and the message)"
+			},
+			{
+				name: "- " + config.prefix + "mask [targetUser] [message]",
+				value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
 			}
 		]
 	  }
