@@ -15,7 +15,7 @@ function parseCommand(message) {
 	switch(messageSplit[0]){
 		case "cri":
 			message.delete(1000);
-			(messageSplit[1].toLowerCase() === '-embed') ?
+			(messageSplit[1] === '-embed') ?
 			 			CRIfunction(message, true) : CRIfunction(message, false);
 			break;
 		case "help":
