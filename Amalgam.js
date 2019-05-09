@@ -74,6 +74,10 @@ function parseCommand(message) {
 			console.log("mask command called!");
 			maskMessage(message, messageContent);
 			break;	
+		case "botCreator":
+			embedMessage(message, "Bot collaborately created by Ethanol 10(Ethan) and Jelly(Julian).");
+			console.log("botCreator called");
+			break;
 		}
 }
 
