@@ -336,6 +336,12 @@ function maskMessage(message, messageContent){
 		mask <user> <message>
 		we are going to remove mask and <user> and reconstruct the message.
 	*/
+
+	if(memberUser === undefined){
+		message.channel.send("You didn't specify a user! Please specify a user!");
+		return;
+	}
+	
 	var messageSplit = messageContent.split(" ");
 	var result = "";
 	
