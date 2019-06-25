@@ -431,7 +431,7 @@ function mainHelpDialog(message){
 		  	},
 			{
 				name: "- " + config.prefix + "remind [number] [message]",
-				value: "Sends a reminder message after the inputted time(minutes) has passed. Put \"-noAuthor\" between the command and the number of minutes to only print the message without pinging the person who called this command."
+				value: "Sends a reminder message after the inputted time(minutes) has passed. \*\*Put \"-noAuthor\"\*\* between the command and the number of minutes to only print the message without pinging the person who called this command."
 		  	},
 			{
 				name: "- " + config.prefix + "coin",
