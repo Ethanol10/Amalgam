@@ -338,10 +338,10 @@ function maskMessage(message, messageContent){
 	*/
 
 	if(memberUser === undefined){
-		message.channel.send("You didn't specify a user! Please specify a user!");
+		message.channel.send("You didn't specify a user! Please specify a user!\n(They must be in the same server as I am for this function to work)");
 		return;
 	}
-	
+
 	var messageSplit = messageContent.split(" ");
 	var result = "";
 	
