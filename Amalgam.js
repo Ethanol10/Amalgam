@@ -78,6 +78,9 @@ function parseCommand(message) {
 			embedMessage(message, "Bot collaborately created by Ethanol 10(Ethan) and Jelly(Julian).");
 			console.log("botCreator called");
 			break;
+		case "botSourceCode":
+			embedMessage(message, "Here's how I work. It ain't perfect tho. https://github.com/Ethanol10/Amalgam");
+			break;
 		}
 }
 
