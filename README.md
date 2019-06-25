@@ -18,13 +18,13 @@ For the program to run, you need a config.json file with the fields
 *Creates a random number between 1 and the inputted value.*
 
 **$remind [number] [message]**
-*Sends a reminder message after the inputted time(seconds) has passed.*
+*Sends a reminder message after the inputted time(minutes) has passed. Put **"-noAuthor"** between the command and the number of minutes to only print the message without pinging the person who called this command.*
 
 **$coin**
 *Flips a coin.*
 
 **$cri [message]**
-*Converts English characters into Regional Indicator emojis. Type $crihelp for more information.*
+*Converts English characters into Regional Indicator emojis. Type $crihelp for more information. If you want the message in an embed, **please type "-embed"** between the command and the message.*
 
 **$calc [number] [operator] [number]**
 *Calculates two numbers with an operator. See $calchelp for a list of operands.*
@@ -33,7 +33,7 @@ For the program to run, you need a config.json file with the fields
 *Prints ¯\\\_(ツ)_/¯. This is useful for mobile discord users.*
 
 **$clap [message]**
-*Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message*
+*Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message. If you want the message in an embed, **please type "-embed"** between the command and the message.*
 
 **$mask [targetUser] [message]**
 *Masks your message as the target user's message by sending an embedded message with the target user's name on it*

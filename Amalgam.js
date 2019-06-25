@@ -431,7 +431,7 @@ function mainHelpDialog(message){
 		  	},
 			{
 				name: "- " + config.prefix + "remind [number] [message]",
-				value: "Sends a reminder message after the inputted time(minutes) has passed."
+				value: "Sends a reminder message after the inputted time(minutes) has passed. Put \"-noAuthor\" between the command and the number of minutes to only print the message without pinging the person who called this command."
 		  	},
 			{
 				name: "- " + config.prefix + "coin",
@@ -443,7 +443,7 @@ function mainHelpDialog(message){
 			},
 		  {	
 				name: "- " + config.prefix + "cri [message]",
-				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information. If you want the message in an embed, \*\*please type '-embed'\*\* between the command and the message."
+				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information. If you want the message in an embed, \*\*please type \"-embed\"\*\* between the command and the message."
 			},
 			{
 				name: "- " + config.prefix + "mshrg",
@@ -451,7 +451,7 @@ function mainHelpDialog(message){
 			},
 			{
 				name: "- " + config.prefix + "clap [message]",
-				value: "Prints a \:clap: for every space in the input string. If you want the message in an embed, \*\*please type '-embed'\*\* between the command and the message.(It does not include the space between the command and the message)"
+				value: "Prints a \:clap: for every space in the input string. If you want the message in an embed, \*\*please type \"-embed\"\*\* between the command and the message.(It does not include the space between the command and the message)"
 			},
 			{
 				name: "- " + config.prefix + "mask [targetUser] [message]",
