@@ -505,6 +505,27 @@ function embedMessage(message, messageContent){
 	});
 }
 
+function uploadImgToImgur(file){
+	var imageLink = "";
+
+	//Check if the file is an image
+	if (!file || !file.type.match(/image.*/)){
+		return;
+	} 
+
+	var fd = new FormData();
+    fd.append("image", file); // Append the file
+	fd.append("key", config.imgurClientID);
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "https://api.imgur.com/3/upload");
+	xhr.onload = function(){
+
+	}
+
+	xhr.send(fd);
+}
+
 function additionFunc(num1, num2){
 	return Number(num1) + Number(num2);
 }
