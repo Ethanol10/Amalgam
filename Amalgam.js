@@ -2,6 +2,8 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
 const specChar = require("./specialCharacter.json");
+const request = require(`request`);
+const fs = require(`fs`);
 
 //Parses the message and figures out what command has been typed by the user
 function parseCommand(message) {
@@ -80,6 +82,9 @@ function parseCommand(message) {
 			break;
 		case "botSourceCode":
 			embedMessage(message, "Here's how I work. It ain't perfect tho. https://github.com/Ethanol10/Amalgam");
+			break;
+		case "upload":
+			uploadImg(messageSplit[1], message);
 			break;
 		}
 }
@@ -505,25 +510,66 @@ function embedMessage(message, messageContent){
 	});
 }
 
+function uploadImg(keyCode, message){
+
+	//Check Attachment exists
+	if(message.attachments.first()){
+		console.log("Stage 1 passed: " + message.attachments.first().filename);
+		download(message.attachments.first().url, message); //Continue to this function to download and upload
+	}
+	else{
+		message.channel.send("Yo! There's no image attached!");		
+	}
+}
+
+//Download function called by uploadImg()
+function download(url, message){
+	var w = fs.createWriteStream('imgStore/img.png');
+	request.get(url).on('error', console.error).pipe(w);
+	
+	//When done, return a base64 string on finish.
+	w.on('finish', function() {
+		console.log("Image Downloaded!: " + message.attachments.first().filename);
+		//Upload image to imgur.
+		var base64Img = base64_encode('imgStore/img.png');
+		console.log(base64Img);
+		uploadImgToImgur(base64Img);
+	})
+}
+
 function uploadImgToImgur(file){
-	var imageLink = "";
-
 	//Check if the file is an image
-	if (!file || !file.type.match(/image.*/)){
-		return;
-	} 
+	// if (!file || !file.type.match(/image.*/)){
+	// 	console.log("file is not an image: " + !file + " " + !file.type.match(/image.*/));
+	// 	return;
+	// } 
 
+	var FormData = require('form-data');
 	var fd = new FormData();
     fd.append("image", file); // Append the file
 	fd.append("key", config.imgurClientID);
 	
+	var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", "https://api.imgur.com/3/upload");
 	xhr.onload = function(){
+		message.channel.send(JSON.parse(xhr.responseText).status);
 
+		if(JSON.parse(xhr.responseText).status != 200){
+			message.channel.send("Invalid Server response! File possibly not uploaded! Return error: " + JSON.parse(xhr.responseText).status);
+		}
+		var returnLink = JSON.parse(xhr.responsetext).data.link;
+		
+		message.channel.send("Image successfully uploaded! Image can be found here:\n" + returnLink);
 	}
 
 	xhr.send(fd);
+}
+
+function base64_encode(file) {
+    // read binary data
+    return fs.readFileSync(file, 'base64');
+    // convert binary data to base64 encoded string
 }
 
 function additionFunc(num1, num2){

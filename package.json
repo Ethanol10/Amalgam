@@ -10,7 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.3.2",
-    "jsonfile": "^5.0.0"
+    "discord.js": "^11.5.1",
+    "form-data": "^3.0.0",
+    "fs": "0.0.1-security",
+    "jsonfile": "^5.0.0",
+    "request": "^2.88.0",
+    "xmlhttprequest": "^1.8.0"
   }
 }
