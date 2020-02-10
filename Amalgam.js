@@ -89,6 +89,9 @@ function parseCommand(message) {
 		case "retrieveImg":
 			retrieveImg(messageSplit[1], message);
 			break;
+		case "deleteImg":
+			deleteImg(messageSplit[1], message);
+			break;
 		}
 }
 
@@ -462,6 +465,18 @@ function mainHelpDialog(message){
 				value: "Prints a \:clap: for every space in the input string. If you want the message in an embed, \*\*please type \"-embed\"\*\* between the command and the message.(It does not include the space between the command and the message)"
 			},
 			{
+				name: "- " + config.prefix + "upload [keyCode] !Image!",
+				value: "Upload an image to a public account on Imgur. If you don't want anyone else seeing the image, this is probably not the place to upload it."
+			},
+			{
+				name: "- " + config.prefix + "retrieveImg [keyCode]",
+				value: "Retrieve an image stored on this database using a keycode. Keycode is case sensitive."
+			},
+			{
+				name: "- " + config.prefix + "deleteImg [keyCode]",
+				value: "Deletes an image associated with the keycode, provided that the image is owned by you. Will not delete the image if you are not the original poster."
+			},
+			{
 				name: "- " + config.prefix + "mask [targetUser] [message]",
 				value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
 			}
@@ -514,15 +529,26 @@ function embedMessage(message, messageContent){
 }
 
 function uploadImg(keyCode, message){
-	console.log("uploadImg function called")
-	//Check Attachment exists
-	if(message.attachments.first()){
-		console.log("Stage 1 passed: " + message.attachments.first().filename);
-		download(message.attachments.first().url, message, keyCode); //Continue to this function to download and upload
-	}
-	else{
-		message.channel.send("Yo! There's no image attached!");		
-	}
+	console.log("uploadImg function called");
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('imgLinkDatabase');
+
+	//Check if keycode exists in database
+	db.get(keyCode)
+	.then(function (result){
+		console.log("DUPLICATE DETECTED.");
+		message.channel.send("This keyword already exists! You cannot have two images assigned to one keyword!");
+	}).catch(function (err){
+		console.log("Move along, nothing to see here.");
+		//Check Attachment exists
+		if(message.attachments.first()){
+			console.log("Stage 1 passed: " + message.attachments.first().filename);
+			download(message.attachments.first().url, message, keyCode); //Continue to this function to download and upload
+		}
+		else{
+			message.channel.send("Yo! There's no image attached!");		
+		}
+	});
 }
 
 //Download function called by uploadImg()
@@ -557,10 +583,13 @@ function uploadImgToImgur(file, message, keyCode){
 		//put code into db to allow retrieval for later.
 		db.put({
 			_id: keyCode,
-			link: json.data.link 
+			link: json.data.link,
+			author: message.author.id,
+			jsonData: json.data
 		}).then(function (response){
 			//handle response
-			message.channel.send("Your image can be retrieved by typing \"" + config.prefix + "retrieveImg " + keyCode + "\".");
+			console.log(json.data);
+			message.channel.send("Your image can be retrieved by typing **" + config.prefix + "retrieveImg " + keyCode + "**.");
 		}).catch(function (err){
 			message.channel.send("Image/Keyword link was not established! Image cannot be retrieved later!");
 			console.log(err);
@@ -584,6 +613,38 @@ function retrieveImg(keyCode, message){
 		console.log(err);
 		message.channel.send("Image could not be retrieved, please check your keycode and try again.");
 	})
+}
+
+//Delete image
+function deleteImg(keyCode, message){
+	var PouchDB = require('pouchdb');
+	var imgur = require('imgur');
+	var db = new PouchDB('imgLinkDatabase');
+	console.log("deleteImg function called");
+
+	//Get the doc
+	db.get(keyCode)
+	.then(function (doc){
+		//if doc author doesn't match the message author, disallow access.
+		if(doc.author === message.author.id){
+			//if it does, remove the database entry
+			imgur.deleteImage(doc.jsonData.deletehash)
+			.then(function (result){
+				console.log(result);
+				message.channel.send("Image was successfully deleted!");
+			}).catch(function (err){
+				console.log(err);
+			});		
+			db.remove(doc);
+		}
+		else{
+			message.channel.send("You are not the author of this image! You cannot delete this! If you believe this image is offensive, please tell the developer about it. If he doesn't care, too bad I suppose.");
+		}
+	}).then(function (result){
+		
+	}).catch(function (err){
+		message.channel.send("Key code doesn't exist! Please check the key code and try again later.");
+	});
 }
 
 function base64_encode(file) {

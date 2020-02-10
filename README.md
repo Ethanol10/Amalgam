@@ -7,7 +7,10 @@ For the program to run, you need a config.json file with the fields
 {
     "token": <Discord Bot token>,
     "prefix": <any prefix>,
-    "ownerID": <Owner of the bot>
+    "ownerID": <Owner of the bot>,
+    "imgurClientID": <imgur Client ID>,
+    "imgurEmail": <imgur Email address to a public account>,
+    "imgurPassword": <imgur Password>
 }
 ~~~~
 
@@ -34,6 +37,15 @@ For the program to run, you need a config.json file with the fields
 
 **$clap [message]**
 *Prints a \:clap: for every space in the input string. (It does not include the space between the command and the message. If you want the message in an embed, **please type "-embed"** between the command and the message.*
+
+**$upload [keyCode] !Image!**
+*Upload an image to a public account on Imgur. If you don't want anyone else seeing the image, this is probably not the place to upload it.*
+
+**$retrieveImg [keyCode]**
+*Retrieve an image stored on this database using a keycode. Keycode is case sensitive.*
+
+**$deleteImg [keyCode]**
+*Deletes an image associated with the keycode, provided that the image is owned by you. Will not delete the image if you are not the original poster.*
 
 **$mask [targetUser] [message]**
 *Masks your message as the target user's message by sending an embedded message with the target user's name on it*
