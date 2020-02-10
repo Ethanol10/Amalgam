@@ -86,6 +86,9 @@ function parseCommand(message) {
 		case "upload":
 			uploadImg(messageSplit[1], message);
 			break;
+		case "retrieveImg":
+			retrieveImg(messageSplit[1], message);
+			break;
 		}
 }
 
@@ -511,11 +514,11 @@ function embedMessage(message, messageContent){
 }
 
 function uploadImg(keyCode, message){
-
+	console.log("uploadImg function called")
 	//Check Attachment exists
 	if(message.attachments.first()){
 		console.log("Stage 1 passed: " + message.attachments.first().filename);
-		download(message.attachments.first().url, message); //Continue to this function to download and upload
+		download(message.attachments.first().url, message, keyCode); //Continue to this function to download and upload
 	}
 	else{
 		message.channel.send("Yo! There's no image attached!");		
@@ -523,7 +526,8 @@ function uploadImg(keyCode, message){
 }
 
 //Download function called by uploadImg()
-function download(url, message){
+function download(url, message, keyCode){
+	console.log("download function called")
 	var w = fs.createWriteStream('imgStore/img.png');
 	request.get(url).on('error', console.error).pipe(w);
 	
@@ -533,37 +537,53 @@ function download(url, message){
 		//Upload image to imgur.
 		var base64Img = base64_encode('imgStore/img.png');
 		console.log(base64Img);
-		uploadImgToImgur(base64Img);
+		uploadImgToImgur(base64Img, message, keyCode);
 	})
 }
 
-function uploadImgToImgur(file){
-	//Check if the file is an image
-	// if (!file || !file.type.match(/image.*/)){
-	// 	console.log("file is not an image: " + !file + " " + !file.type.match(/image.*/));
-	// 	return;
-	// } 
+//get a base64 string and upload it to imgur.
+function uploadImgToImgur(file, message, keyCode){
+	console.log("uploadImgToImgur function called!")
+	var PouchDB = require('pouchdb');
+	var imgur = require('imgur');
+	var db = new PouchDB('imgLinkDatabase');
 
-	var FormData = require('form-data');
-	var fd = new FormData();
-    fd.append("image", file); // Append the file
-	fd.append("key", config.imgurClientID);
-	
-	var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "https://api.imgur.com/3/upload");
-	xhr.onload = function(){
-		message.channel.send(JSON.parse(xhr.responseText).status);
+	imgur.setClientId(config.imgurClientID);
+	imgur.setCredentials(config.imgurEmail, config.imgurPassword, config.imgurClientID);
 
-		if(JSON.parse(xhr.responseText).status != 200){
-			message.channel.send("Invalid Server response! File possibly not uploaded! Return error: " + JSON.parse(xhr.responseText).status);
-		}
-		var returnLink = JSON.parse(xhr.responsetext).data.link;
-		
-		message.channel.send("Image successfully uploaded! Image can be found here:\n" + returnLink);
-	}
+	imgur.uploadBase64(file)
+    .then(function (json) {
+		message.channel.send("Image successfully uploaded! \nHere's your raw link: " + json.data.link );
+		//put code into db to allow retrieval for later.
+		db.put({
+			_id: keyCode,
+			link: json.data.link 
+		}).then(function (response){
+			//handle response
+			message.channel.send("Your image can be retrieved by typing \"" + config.prefix + "retrieveImg " + keyCode + "\".");
+		}).catch(function (err){
+			message.channel.send("Image/Keyword link was not established! Image cannot be retrieved later!");
+			console.log(err);
+		});
+    })
+    .catch(function (err) {
+		console.error(err.message);
+		message.channel.send("Image not uploaded! Please try again later!");
+    });
+}
 
-	xhr.send(fd);
+function retrieveImg(keyCode, message){
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('imgLinkDatabase');
+	console.log("retrieveImg function called")
+
+	db.get(keyCode)
+	.then(function (doc){
+		message.channel.send("Here is your image! " + doc.link);
+	}).catch(function (err){
+		console.log(err);
+		message.channel.send("Image could not be retrieved, please check your keycode and try again.");
+	})
 }
 
 function base64_encode(file) {
