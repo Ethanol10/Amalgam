@@ -92,6 +92,9 @@ function parseCommand(message) {
 		case "deleteImg":
 			deleteImg(messageSplit[1], message);
 			break;
+		case "listKey":
+			listAllKeycodes(message);
+			break;
 		}
 }
 
@@ -477,6 +480,10 @@ function mainHelpDialog(message){
 				value: "Deletes an image associated with the keycode, provided that the image is owned by you. Will not delete the image if you are not the original poster."
 			},
 			{
+				name: "- " + config.prefix + "listKey",
+				value: "Shows all available key codes in the database."
+			},
+			{
 				name: "- " + config.prefix + "mask [targetUser] [message]",
 				value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
 			}
@@ -644,6 +651,28 @@ function deleteImg(keyCode, message){
 		
 	}).catch(function (err){
 		message.channel.send("Key code doesn't exist! Please check the key code and try again later.");
+	});
+}
+
+//Lists all the keycodes in the database.
+function listAllKeycodes(message){
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('imgLinkDatabase');
+
+	db.allDocs({
+		include_docs: true
+	}).then(function (result){
+		//List all docs
+		var outputMessage = "";
+		for(var i = 0; i < result.total_rows; i++){
+			outputMessage += result.rows[i].id + "\n";
+		}
+		console.log(outputMessage);
+		message.channel.send("Here is the list of keycodes!\n");
+		embedMessage(message, outputMessage);
+	}).catch(function (err){
+		console.log(err);
+
 	});
 }
 
