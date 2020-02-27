@@ -41,10 +41,10 @@ For the program to run, you need a config.json file with the fields
 **$upload [keyCode] !Image!**
 *Upload an image to a public account on Imgur. If you don't want anyone else seeing the image, this is probably not the place to upload it.*
 
-**$retrieveImg [keyCode]**
+**$getimg [keyCode]**
 *Retrieve an image stored on this database using a keycode. Keycode is case sensitive.*
 
-**$deleteImg [keyCode]**
+**$deleteimg [keyCode]**
 *Deletes an image associated with the keycode, provided that the image is owned by you. Will not delete the image if you are not the original poster.*
 
 **$mask [targetUser] [message]**

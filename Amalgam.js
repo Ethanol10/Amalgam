@@ -86,13 +86,13 @@ function parseCommand(message) {
 		case "upload":
 			uploadImg(messageSplit[1], message);
 			break;
-		case "retrieveImg":
+		case "getimg":
 			retrieveImg(messageSplit[1], message);
 			break;
-		case "deleteImg":
+		case "deleteimg":
 			deleteImg(messageSplit[1], message);
 			break;
-		case "listKey":
+		case "listkey":
 			listAllKeycodes(message);
 			break;
 		}
@@ -472,15 +472,15 @@ function mainHelpDialog(message){
 				value: "Upload an image to a public account on Imgur. If you don't want anyone else seeing the image, this is probably not the place to upload it."
 			},
 			{
-				name: "- " + config.prefix + "retrieveImg [keyCode]",
+				name: "- " + config.prefix + "getimg [keyCode]",
 				value: "Retrieve an image stored on this database using a keycode. Keycode is case sensitive."
 			},
 			{
-				name: "- " + config.prefix + "deleteImg [keyCode]",
+				name: "- " + config.prefix + "deleteimg [keyCode]",
 				value: "Deletes an image associated with the keycode, provided that the image is owned by you. Will not delete the image if you are not the original poster."
 			},
 			{
-				name: "- " + config.prefix + "listKey",
+				name: "- " + config.prefix + "listkey",
 				value: "Shows all available key codes in the database."
 			},
 			{
