@@ -694,7 +694,7 @@ function randomKeyword(message){
 		//Choose a random number from the total amount of rows in the list.		
 		var choice = Math.floor((Math.random() * result.total_rows));
 		var keycode = result.rows[choice].id;
-
+		message.channel.send("Chosen keycode: " + keycode);
 		//Get image
 		retrieveImg(keycode, message);
 		
