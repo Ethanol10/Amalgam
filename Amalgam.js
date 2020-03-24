@@ -95,6 +95,9 @@ function parseCommand(message) {
 		case "listkey":
 			listAllKeycodes(message);
 			break;
+		case "randomimg":
+			randomKeyword(message);
+			break;
 		}
 }
 
@@ -484,6 +487,10 @@ function mainHelpDialog(message){
 				value: "Shows all available key codes in the database."
 			},
 			{
+				name: "- " + config.prefix + "randomimg",
+				value: "Picks a random image from my database."
+			},
+			{
 				name: "- " + config.prefix + "mask [targetUser] [message]",
 				value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
 			}
@@ -670,6 +677,27 @@ function listAllKeycodes(message){
 		console.log(outputMessage);
 		message.channel.send("Here is the list of keycodes!\n");
 		embedMessage(message, outputMessage);
+	}).catch(function (err){
+		console.log(err);
+
+	});
+}
+
+//Choose a random keyword and retrieve the image
+function randomKeyword(message){
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('imgLinkDatabase');
+
+	db.allDocs({
+		include_docs: true
+	}).then(function (result){
+		//Choose a random number from the total amount of rows in the list.		
+		var choice = Math.floor((Math.random() * result.total_rows));
+		var keycode = result.rows[choice].id;
+
+		//Get image
+		retrieveImg(keycode, message);
+		
 	}).catch(function (err){
 		console.log(err);
 
