@@ -603,7 +603,7 @@ function uploadImgToImgur(file, message, keyCode){
 		}).then(function (response){
 			//handle response
 			console.log(json.data);
-			message.channel.send("Your image can be retrieved by typing **" + config.prefix + "retrieveImg " + keyCode + "**.");
+			message.channel.send("Your image can be retrieved by typing **" + config.prefix + "getimg " + keyCode + "**.");
 		}).catch(function (err){
 			message.channel.send("Image/Keyword link was not established! Image cannot be retrieved later!");
 			console.log(err);
