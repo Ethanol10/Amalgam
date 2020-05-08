@@ -95,6 +95,8 @@ function parseCommand(message) {
 		case "listkey":
 			listAllKeycodes(message);
 			break;
+		case "counter"
+			counter
 		}
 }
 
@@ -675,6 +677,43 @@ function listAllKeycodes(message){
 
 	});
 }
+
+/*
+Counter requires 
+- counter set
+- counter reset
+- counter delete
+- counter retrieve
+- counter auto ping
+Counter should only be relegated to the server it was initiated in
+*/
+
+function counter(message, param){
+	switch(param){
+		case "set":
+			counterSet(message);
+			break;
+		case "reset":
+			counterReset(message);
+			break;
+		case "retrieve":
+			counterRetrieve(message);
+			break;
+		case "delete":
+			counterDelete(message);
+			break;
+	}
+}
+
+function counterSet(message){}
+
+function counterReset(message){}
+
+function counterDelete(message){}
+
+function counterRetrieve(){}
+
+function counterPing(message){}
 
 function base64_encode(file) {
     // read binary data
