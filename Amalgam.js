@@ -95,8 +95,9 @@ function parseCommand(message) {
 		case "listkey":
 			listAllKeycodes(message);
 			break;
-		case "counter"
-			counter
+		case "counter":
+			counter(message, messageSplit[1]);
+			break;
 		}
 }
 
@@ -108,18 +109,13 @@ client.on("ready", () => {
 
 //Check for message and send it to the parser
 client.on("message", (message) => {
+	counterPing(message);
   //Don't check the message if it does not start with the prefix or is from a bot.
 	if (message.author.bot || message.content.indexOf(config.prefix) !== 0) return;
 	
 	console.log("Message Recieved!");
 	parseCommand(message);	
 });
-
-//image output
-function imageOutput(imagePath, message){
-	console.log("imageOutput function called!");
-	message.channel.send({files:[imagePath]});
-}
 
 function regionalIndicatorGenerator(char){
 	var regIndStdString = "regional_indicator_";
@@ -674,7 +670,6 @@ function listAllKeycodes(message){
 		embedMessage(message, outputMessage);
 	}).catch(function (err){
 		console.log(err);
-
 	});
 }
 
@@ -705,15 +700,101 @@ function counter(message, param){
 	}
 }
 
-function counterSet(message){}
+function counterSet(message){
+	var guild = message.guild;
+	var messageContent = message.content.substring(config.prefix.length);
+	var messageSplit = messageContent.split(" ");
+	var keyCode = "";
+
+	for(var i = 2; i < messageSplit.length; i++){
+		keyCode += messageSplit[i];
+
+		if( i < messageSplit.length - 1 ){
+			keyCode += " ";
+		}
+	}
+	
+	console.log("counterSet function called");
+	console.log(keyCode);
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('counterDb');
+
+	//Check if keycode exists in database
+	db.get(keyCode)
+	.then(function (result){
+		console.log("DUPLICATE DETECTED.");
+		message.channel.send("This keyword already exists! You cannot have two counters to one word.");
+	}).catch(function (err){
+		console.log("Move along, nothing to see here.");
+		
+		//Write to database if none exist
+		//You need a trigger word, number of times, guild, author stored in a single entry
+		db.put({
+			_id: keyCode,
+			noOfTimes: 0,
+			author: message.author.id,
+			guild: guild
+		}).then(function (response){
+			//handle response
+			message.channel.send("Counter set for \"" + keyCode + "\"!");
+		}).catch(function (err){
+			message.channel.send("Something went wrong, please contact the developer!");
+			console.log(err);
+		});
+	});
+	
+}
 
 function counterReset(message){}
 
 function counterDelete(message){}
 
-function counterRetrieve(){}
+function counterRetrieve(message){}
 
-function counterPing(message){}
+function counterPing(message){
+	console.log("counterPing called!");
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('counterDb');
+
+	db.allDocs({
+		include_docs: true
+	}).then(function (result){
+		//List all docs
+		for(var i = 0; i < result.total_rows; i++){	
+			if(message.content.includes(result.rows[i].id)){
+				var keyCode = result.rows[i].id;
+				var author = result.rows[i].author;
+				var guild = result.rows[i].guild;
+				var newNoOftimes = result.rows[i].noOfTimes + 1;
+
+				console.log(result.rows[i].noOfTimes);
+				db.get(result.rows[i].id).then(function(doc) {
+					return db.put({
+					  _id: keyCode,
+					  _rev: doc._rev,
+					  noOfTimes: newNoOftimes,
+					  author: author,
+					  guild: guild 
+					});
+				  }).then(function(response) {
+					message.channel.send("\"" + keyCode + "\" detected!\n" + "No. of times said: " + newNoOftimes);
+
+				  }).catch(function (err) {
+					console.log(err);
+				  });
+			}
+		}
+
+		// var outputMessage = "";
+		// for(var i = 0; i < result.total_rows; i++){
+		// 	outputMessage += result.rows[i].id + "\n";
+		// }
+		// console.log(outputMessage);
+		// message.channel.send("Here is the list of keycodes!\n");
+	}).catch(function (err){
+		console.log(err);
+	});
+}
 
 function base64_encode(file) {
     // read binary data
