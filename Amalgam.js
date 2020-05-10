@@ -109,7 +109,11 @@ client.on("ready", () => {
 
 //Check for message and send it to the parser
 client.on("message", (message) => {
-	counterPing(message);
+
+	//only for counter pinging
+	if(!(message.author.bot)){
+		counterPing(message);
+	}
   //Don't check the message if it does not start with the prefix or is from a bot.
 	if (message.author.bot || message.content.indexOf(config.prefix) !== 0) return;
 	
@@ -762,22 +766,17 @@ function counterPing(message){
 		//List all docs
 		for(var i = 0; i < result.total_rows; i++){	
 			if(message.content.includes(result.rows[i].id)){
-				var keyCode = result.rows[i].id;
-				var author = result.rows[i].author;
-				var guild = result.rows[i].guild;
-				var newNoOftimes = result.rows[i].noOfTimes + 1;
+				
+				var newNoTimes;
+				var keyCode;
 
-				console.log(result.rows[i].noOfTimes);
 				db.get(result.rows[i].id).then(function(doc) {
-					return db.put({
-					  _id: keyCode,
-					  _rev: doc._rev,
-					  noOfTimes: newNoOftimes,
-					  author: author,
-					  guild: guild 
-					});
+					doc.noOfTimes = doc.noOfTimes + 1;
+					newNoTimes = doc.noOfTimes;
+					keyCode = doc._id;
+					return db.put(doc);
 				  }).then(function(response) {
-					message.channel.send("\"" + keyCode + "\" detected!\n" + "No. of times said: " + newNoOftimes);
+					message.channel.send("\"" + keyCode + "\" detected!\n" + "No. of times said: " + newNoTimes);
 
 				  }).catch(function (err) {
 					console.log(err);
