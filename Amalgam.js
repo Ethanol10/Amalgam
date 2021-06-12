@@ -4,6 +4,11 @@ const config = require("./config.json");
 const specChar = require("./specialCharacter.json");
 const request = require(`request`);
 const fs = require(`fs`);
+const mshrug = require('./chatCommands/mshrg.js');
+const embedMessage = require('./chatCommands/embedMessage.js');
+const {CRIfunction} = require('./chatCommands/cri.js');
+const coin = require('./chatCommands/coin.js');
+const {calculator} = require('./chatCommands/calculator.js');
 
 //Parses the message and figures out what command has been typed by the user
 function parseCommand(message) {
@@ -64,9 +69,7 @@ function parseCommand(message) {
 			calculator(message, messageContent);
 			break;
 		case "mshrg":
-			message.delete(1000);
-			console.log("mshrg command called!");
-			embedMessage(message, "¯\\\_(ツ)_/¯");
+			mshrug(message);
 			break;	
 		case "clap":
 			message.delete(1000);
@@ -120,94 +123,6 @@ client.on("message", (message) => {
 function imageOutput(imagePath, message){
 	console.log("imageOutput function called!");
 	message.channel.send({files:[imagePath]});
-}
-
-function regionalIndicatorGenerator(char){
-	var regIndStdString = "regional_indicator_";
-	var alphabet = "abcdefghijklmnopqrstuvwxyz";
-
-	console.log("char: " + char);
-	char = char.toLowerCase();
-
-	if(char.length != 1){
-		console.log("Hold up, that's illegal.");
-		console.log("ERROR: MORE THAN ONE CHAR PASSED TO FUNCTION: regionalIndicatorGenerator");
-		return;
-	}
-
-	if(alphabet.includes(char)){
-		return regIndStdString + char + ":";
-	}
-
-	for (j = 0; j < specChar.specialCharacter.length; j++) {
-		
-		if(char === specChar.specialCharacter[j].inputChar){
-			return specChar.specialCharacter[j].returnChar;
-		}
-	}
-
-	return char;
-}
-
-function CRIfunction(message, isEmbed){
-
-	if(isEmbed){
-		var messageContent = message.content.substring(config.prefix.length + "CRI -embed".length);
-	}
-	else{
-		var messageContent = message.content.substring(config.prefix.length + "CRI ".length);
-	}
-	var messageSplit = messageContent.split("");
-	var result = "";
-	var isCRIed = false;
-
-	console.log("CRIfunction called!");
-	console.log("Input message: " + messageContent);
-
-	for(i = 0; i < messageContent.length; i++){
-		//Check if the message should be CRI-ed
-		if(messageSplit[i] === "{"){
-			isCRIed = true;
-			i++; //Increment past the character
-		}
-		else if(messageSplit[i] === "}"){
-			isCRIed = false;
-			i++; //Increment past the character
-		}
-		
-		//Start CRIing if the message requires to be CRIed
-		if(isCRIed){
-			console.log("messageSplit[i]: " + messageSplit[i] + " " + i );
-			var regIndGenChar = regionalIndicatorGenerator(messageSplit[i]);
-		
-			if(regIndGenChar === "    "){
-				result = result + regIndGenChar + " ";
-			}
-			else if(regIndGenChar[regIndGenChar.length - 1] === ":"){
-				result = result + "\:" + regIndGenChar + " ";
-			}
-			else{
-				result = result + regIndGenChar + " ";
-			}
-		}
-		else if(!isCRIed){
-			if(messageSplit[i] !== undefined){
-				result = result + messageSplit[i];
-			}
-		} 
-	}
-	if(result.length > 2000){
-		message.channel.send("Message too Long! Working on fixing that soon!");
-	}
-	else{
-		if(isEmbed){
-			embedMessage(message, result);
-		}
-		else{
-			console.log(isEmbed);
-			message.channel.send(result);
-		}
-	}
 }
 
 //reminder
@@ -302,57 +217,6 @@ function time(message, isNoAuthor){
 		}
 	}
 	
-}
-
-function coin(message){
-	var coin = (Math.floor((Math.random() * 2) + 1))
-	
-	console.log("coin function called!");
-	if (coin == 1) {
-		message.channel.send("Heads!")
-	}
-	else if (coin == 2) {
-		message.channel.send("Tails!")
-	}
-}
-
-function calculator(message, messageContent){
-	var messageSplit = messageContent.split(" ");
-	var validChar = "+-/*^%";
-	var result;
-	console.log("calculator function called!");
-	
-	if(isNaN(messageSplit[1]) || isNaN(messageSplit[3])){
-		message.channel.send("Invalid number in argument 1 or 3");
-		console.log("Invalid Num in argument 1/3");
-		return;
-	}
-
-	switch(messageSplit[2]){
-		case "+":
-			result = additionFunc(messageSplit[1], messageSplit[3]);
-			break;
-		case "-":
-			result = subtractFunc(messageSplit[1], messageSplit[3]);
-			break;
-		case "*":
-			result = multiplyFunc(messageSplit[1], messageSplit[3]);
-			break;
-		case "/":
-			result = divisionFunc(messageSplit[1], messageSplit[3]);
-			break;
-		case "^":
-			result = powerToFunc(messageSplit[1], messageSplit[3]);
-			break;
-		case "%":
-			result = moduloFunc(messageSplit[1], messageSplit[3]);
-			break;
-		default:
-			message.channel.send("Invalid operand in argument 2");
-			console.log("Invalid operand in argument 2");
-			break;
-	}
-	message.channel.send(result);
 }
 
 function gatekeepingClap(message, isEmbed){
@@ -528,20 +392,6 @@ function criHelp(message){
 	  });
 }
 
-function embedMessage(message, messageContent){
-	console.log("embedMessage function called");
-	message.channel.send({embed: {
-			color: Math.floor(Math.random()*16777215),  //random colour
-			author: {
-				name: message.author.username,
-				icon_url: message.author.avatarURL
-			},
-			title: "",
-			description: messageContent
-		}
-	});
-}
-
 function uploadImg(keyCode, message){
 	console.log("uploadImg function called");
 	var PouchDB = require('pouchdb');
@@ -710,28 +560,5 @@ function base64_encode(file) {
     // convert binary data to base64 encoded string
 }
 
-function additionFunc(num1, num2){
-	return Number(num1) + Number(num2);
-}
-
-function subtractFunc(num1, num2){
-	return Number(num1) - Number(num2);
-}
-
-function multiplyFunc(num1, num2){
-	return Number(num1) * Number(num2);
-}
-
-function divisionFunc(num1, num2){
-	return Number(num1) / Number(num2);
-}
-
-function powerToFunc(num1, power){
-	return Math.pow(Number(num1), Number(power));
-}
-
-function moduloFunc(num1, num2){
-	return Number(num1) % Number(num2);
-}
 //refer to the JSON config file for the token
 client.login(config.token);
