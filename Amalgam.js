@@ -1,20 +1,29 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-const config = require("./config.json");
+const botConfig = require("./config.json");
 const specChar = require("./specialCharacter.json");
 const request = require(`request`);
 const fs = require(`fs`);
+
+//chat command imports
 const mshrug = require('./chatCommands/mshrg.js');
 const embedMessage = require('./chatCommands/embedMessage.js');
-const {CRIfunction} = require('./chatCommands/cri.js');
+const {CRIfunction, criHelp} = require('./chatCommands/cri.js');
 const coin = require('./chatCommands/coin.js');
 const {calculator} = require('./chatCommands/calculator.js');
+const {time, remind} = require('./chatCommands/remind.js');
+const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
+const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
+
+//AWS imports
+const AWS = require('aws-sdk');
+const { S3 } = require("aws-sdk");
 
 //Parses the message and figures out what command has been typed by the user
 function parseCommand(message) {
 	var i;
 	//Get the message and split it
-	var messageContent = message.content.substring(config.prefix.length);
+	var messageContent = message.content.substring(botConfig.prefix.length);
 	var messageSplit = messageContent.split(" ");
 
 	console.log("parseCommand function called!");
@@ -27,7 +36,7 @@ function parseCommand(message) {
 			break;
 		case "help":
 			message.delete(1000);
-			mainHelpDialog(message);
+			mainHelpDialog(message, client);
 			break;	
 		case "command":
 			message.delete(1000);
@@ -35,10 +44,10 @@ function parseCommand(message) {
 			break;
 		case "crihelp":
 			message.delete(1000);
-			criHelp(message);
+			criHelp(message, client);
 			break;
 		case "calchelp":
-			inputStr = "**" + config.prefix + "calchelp**\n Available operands are as follows: \n Addition: + \n Subtraction: - \n Multiplication: * \n Division: / \n Modulo: % \n Exponent:^"
+			inputStr = "**" + botConfig.prefix + "calchelp**\n Available operands are as follows: \n Addition: + \n Subtraction: - \n Multiplication: * \n Division: / \n Modulo: % \n Exponent:^"
 			embedMessage(message, inputStr);
 			break;	
 		case "number":
@@ -101,19 +110,55 @@ function parseCommand(message) {
 		case "randomimg":
 			randomKeyword(message);
 			break;
-		}
+	}
+}
+
+function importToDynamoDB(){
+	//for each element in rows
+		//retrieve the doc
+		//store _id, jsonData, author, link into a JSON
+		//
+}
+
+function dbExport(){
+	var PouchDB = require('pouchdb');
+	var db = new PouchDB('imgLinkDatabase');
+	db.allDocs({include_docs: true, attachments: true}).then( function(result){
+		var JSONexport = JSON.stringify(result);
+		fs.writeFile("output.json", JSONexport, 'utf8', function(err){
+			if(err){
+				console.log("An error occurred writing to file");
+				return console.log(err);
+			}
+	
+			console.log("JSON file successfully written");
+		})
+	});
 }
 
 //Inital boot
 client.on("ready", () => {
 	console.log("Amalgam is ready to serve!");
-	client.user.setActivity(config.prefix + "help");
+	client.user.setActivity(botConfig.prefix + "help");
+	//db export
+	//dbExport();
+	
+	//AWS SETUP
+	AWS.config.update({region: botConfig.region});
+	AWS.config.loadFromPath('./config.json');
+	AWS.config.getCredentials(function(err) {
+		if (err) console.log(err.stack);
+		// credentials not loaded
+		else {
+		  console.log("Access key:", AWS.config.credentials.accessKeyId);
+		}
+	});
 });
 
 //Check for message and send it to the parser
 client.on("message", (message) => {
   //Don't check the message if it does not start with the prefix or is from a bot.
-	if (message.author.bot || message.content.indexOf(config.prefix) !== 0) return;
+	if (message.author.bot || message.content.indexOf(botConfig.prefix) !== 0) return;
 	
 	console.log("Message Recieved!");
 	parseCommand(message);	
@@ -123,136 +168,6 @@ client.on("message", (message) => {
 function imageOutput(imagePath, message){
 	console.log("imageOutput function called!");
 	message.channel.send({files:[imagePath]});
-}
-
-//reminder
-async function remind(message, isNoAuthor){
-    var messageContent = message.content.substring(config.prefix.length);
-    var messageSplit = messageContent.split(" ");
-	
-		console.log("remind function called!");
-
-    let promise = new Promise((resolve, reject) => {
-			if(isNoAuthor){
-				setTimeout(() => resolve(messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 2)), messageSplit[2]*1000*60)
-			}
-			else{
-				setTimeout(() => resolve(messageContent.slice(messageSplit[0].length + messageSplit[1].length + 1)), messageSplit[1]*1000*60)
-			}
-    });
-
-		if(isNoAuthor){
-			let result = await promise; 
-			message.channel.send(result);
-			console.log("success1");
-		}
-		else{
-			let result = await promise;
-			message.channel.send(message.author + result);
-			console.log("success");
-		}
-  }
-  
-//time message
-function time(message, isNoAuthor){
-  var messageContent = message.content.substring(config.prefix.length);
-	var messageSplit = messageContent.split(" ");
-
-	console.log("Time function called!");
-
-	if(!isNoAuthor){
-		if(messageSplit[1] > 0){
-			if(messageSplit[1]/60 < 1 && messageSplit[1]%60 == 1){
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 minute]```");
-			}
-			else if(messageSplit[1]/60 < 1 && messageSplit[1]%60 != 1){
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + messageSplit[1] + " minutes]```");
-			}
-			else if(messageSplit[1]/60 == 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 hour]```");
-			}
-			else if(messageSplit[1]/60 > 1 && messageSplit[1]/60 < 2 && messageSplit[1]%60 == 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 hour and 1 minute]```");
-			}
-			else if(messageSplit[1]/60 > 1 && messageSplit[1]/60 < 2 && messageSplit[1]%60 != 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in 1 hour and " + messageSplit[1]%60 + " minutes]```");
-			}
-			else if(messageSplit[1]/60 >= 2 && messageSplit[1]%60 == 0) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + Math.floor(messageSplit[1]/60) + " hours]```");
-			}
-			else if(messageSplit[1]/60 > 2 && messageSplit[1]%60 == 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + Math.floor(messageSplit[1]/60) + " hours and 1 minute]```");
-			}
-			else if(messageSplit[1]/60 > 2 && messageSplit[1]%60 != 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + 2) + "\n[Reminder will be sent in " + Math.floor(messageSplit[1]/60) + " hours and " + messageSplit[1]%60 + " minutes]```");
-			}
-		}
-	}
-	else{
-		if(messageSplit[2] > 0){
-			if(messageSplit[2]/60 < 1 && messageSplit[2]%60 == 1){
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in 1 minute]```");
-			}
-			else if(messageSplit[2]/60 < 1 && messageSplit[2]%60 != 1){
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in " + messageSplit[2] + " minutes]```");
-			}
-			else if(messageSplit[2]/60 == 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in 1 hour]```");
-			}
-			else if(messageSplit[2]/60 > 1 && messageSplit[2]/60 < 2 && messageSplit[2]%60 == 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in 1 hour and 1 minute]```");
-			}
-			else if(messageSplit[2]/60 > 1 && messageSplit[2]/60 < 2 && messageSplit[2]%60 != 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in 1 hour and " + messageSplit[2]%60 + " minutes]```");
-			}
-			else if(messageSplit[2]/60 >= 2 && messageSplit[2]%60 == 0) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in " + Math.floor(messageSplit[2]/60) + " hours]```");
-			}
-			else if(messageSplit[2]/60 > 2 && messageSplit[2]%60 == 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in " + Math.floor(messageSplit[2]/60) + " hours and 1 minute]```");
-			}
-			else if(messageSplit[2]/60 > 2 && messageSplit[2]%60 != 1) {
-				message.channel.send("```css\n" + messageContent.slice(messageSplit[0].length + messageSplit[1].length + messageSplit[2].length + 3) + "\n[Reminder will be sent in " + Math.floor(messageSplit[2]/60) + " hours and " + messageSplit[2]%60 + " minutes]```");
-			}
-		}
-	}
-	
-}
-
-function gatekeepingClap(message, isEmbed){
-	var result = "";
-	var clapStr = "clap:"
-
-	//Check if embedded is required
-	console.log(isEmbed);
-	if(isEmbed){
-		console.log("isembed");
-		var messageContent = message.content.substring(config.prefix.length + "clap -embed ".length);
-	}
-	else{
-		var messageContent = message.content.substring(config.prefix.length + "clap ".length);
-	}
-	console.log("gatekeepingClap function called");
-
-	//generate clap string
-	result += "\:" + clapStr; 
-	for(i = 0; i < messageContent.length; i++){
-		if(messageContent[i] === " "){
-			result += "\:" + clapStr; 
-		}
-		else{
-			result += messageContent[i];
-		}
-	}
-	result += "\:" + clapStr; 
-	
-	//Send it
-	if(isEmbed){
-		embedMessage(message, result);
-	}
-	else{
-		message.channel.send(result);
-	}
 }
 
 function maskMessage(message, messageContent){
@@ -288,108 +203,6 @@ function maskMessage(message, messageContent){
 		description: result
 	}
 	});
-}
-
-function mainHelpDialog(message){
-
-	console.log("mainHelpDialog function called!");
-	message.channel.send({embed: {
-		color: Math.floor(Math.random()*16777215),  //random colour
-		author: {
-		  name: client.user.username,
-		  icon_url: client.user.avatarURL
-		},
-		title: "**__Command List__**",
-		description: "Looks like your tiny brain couldn't remember all the commands. \nHere they are I guess:",
-		fields: [
-			{
-				name: "- " + config.prefix + "clone [number] [message]",
-				value: "Duplicates an inputted message by the number specified."
-		  	},
-		  	{
-				name: "- " + config.prefix + "number [number]",
-				value: "Creates a random number between 1 and the inputted value."
-		  	},
-			{
-				name: "- " + config.prefix + "remind [number] [message]",
-				value: "Sends a reminder message after the inputted time(minutes) has passed. \*\*Put \"-noAuthor\"\*\* between the command and the number of minutes to only print the message without pinging the person who called this command."
-		  	},
-			{
-				name: "- " + config.prefix + "coin",
-				value: "Flips a coin."
-			},
-			{
-				name: "- " + config.prefix + "calc [number] [operator] [number]",
-				value: "Calculates two numbers with an operator. See **$calchelp** for a list of operands."
-			},
-		  {	
-				name: "- " + config.prefix + "cri [message]",
-				value: "Converts \*English\* characters into Regional Indicator emojis. Type **$crihelp** for more information. If you want the message in an embed, \*\*please type \"-embed\"\*\* between the command and the message."
-			},
-			{
-				name: "- " + config.prefix + "mshrg",
-				value: "Prints ¯\\\_(ツ)_/¯. This is useful for mobile discord users."
-			},
-			{
-				name: "- " + config.prefix + "clap [message]",
-				value: "Prints a \:clap: for every space in the input string. If you want the message in an embed, \*\*please type \"-embed\"\*\* between the command and the message.(It does not include the space between the command and the message)"
-			},
-			{
-				name: "- " + config.prefix + "upload [keyCode] !Image!",
-				value: "Upload an image to a public account on Imgur. If you don't want anyone else seeing the image, this is probably not the place to upload it."
-			},
-			{
-				name: "- " + config.prefix + "getimg [keyCode]",
-				value: "Retrieve an image stored on this database using a keycode. Keycode is case sensitive."
-			},
-			{
-				name: "- " + config.prefix + "deleteimg [keyCode]",
-				value: "Deletes an image associated with the keycode, provided that the image is owned by you. Will not delete the image if you are not the original poster."
-			},
-			{
-				name: "- " + config.prefix + "listkey",
-				value: "Shows all available key codes in the database."
-			},
-			{
-				name: "- " + config.prefix + "randomimg",
-				value: "Picks a random image from my database."
-			},
-			{
-				name: "- " + config.prefix + "mask [targetUser] [message]",
-				value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
-			}
-		]
-	  }
-	  });
-}
-
-function criHelp(message){
-
-	console.log("criHelp function called!");
-	message.channel.send({embed: {
-				color: Math.floor(Math.random()*16777215),  //random colour
-				author: {
-					name: client.user.username,
-					icon_url: client.user.avatarURL
-				},
-				title: "**__CRI Help__**",
-				description: "More information on how to use $cri",
-				fields: [
-					{
-						name: "- " + config.prefix + "cri {message} message2",
-						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: message2\""
-					},
-					{
-						name: "- " + config.prefix +  "cri {message1 message2",
-						value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:one:      \:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:two:\""
-					},
-					{
-						name: "- " + config.prefix + "cri message1 message2",
-						value: "The output will be \"message1 message2\""
-					}
-				]
-			}
-	  });
 }
 
 function uploadImg(keyCode, message){
@@ -438,8 +251,8 @@ function uploadImgToImgur(file, message, keyCode){
 	var imgur = require('imgur');
 	var db = new PouchDB('imgLinkDatabase');
 
-	imgur.setClientId(config.imgurClientID);
-	imgur.setCredentials(config.imgurEmail, config.imgurPassword, config.imgurClientID);
+	imgur.setClientId(botConfig.imgurClientID);
+	imgur.setCredentials(botConfig.imgurEmail, botConfig.imgurPassword, botConfig.imgurClientID);
 
 	imgur.uploadBase64(file)
     .then(function (json) {
@@ -453,7 +266,7 @@ function uploadImgToImgur(file, message, keyCode){
 		}).then(function (response){
 			//handle response
 			console.log(json.data);
-			message.channel.send("Your image can be retrieved by typing **" + config.prefix + "getimg " + keyCode + "**.");
+			message.channel.send("Your image can be retrieved by typing **" + botConfig.prefix + "getimg " + keyCode + "**.");
 		}).catch(function (err){
 			message.channel.send("Image/Keyword link was not established! Image cannot be retrieved later!");
 			console.log(err);
@@ -561,4 +374,4 @@ function base64_encode(file) {
 }
 
 //refer to the JSON config file for the token
-client.login(config.token);
+client.login(botConfig.token);

@@ -1,7 +1,11 @@
 # Amalgam
 
 A multi-function bot that runs with silly commands.
-For the program to run, you need a config.json file with the fields 
+For the program to run, you need a config.json file with the fields '
+
+On initial setup, run 
+npm install
+
 
 ~~~~
 {
@@ -10,7 +14,10 @@ For the program to run, you need a config.json file with the fields
     "ownerID": <Owner of the bot>,
     "imgurClientID": <imgur Client ID>,
     "imgurEmail": <imgur Email address to a public account>,
-    "imgurPassword": <imgur Password>
+    "imgurPassword": <imgur Password>,
+    "accessKeyId":<Amazon Access Key ID>,
+    "secretAccessKey":<Amazon Secret Access Key>,
+    "region": <Amazon region>
 }
 ~~~~
 

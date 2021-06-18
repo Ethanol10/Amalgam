@@ -1,13 +1,13 @@
 const embedMessage = require("./embedMessage.js");
-const config = require("../config.json");
+const botConfig = require("../config.json");
 
 module.exports = {
     CRIfunction: function(message, isEmbed){
         if(isEmbed){
-            var messageContent = message.content.substring(config.prefix.length + "CRI -embed".length);
+            var messageContent = message.content.substring(botConfig.prefix.length + "CRI -embed".length);
         }
         else{
-            var messageContent = message.content.substring(config.prefix.length + "CRI ".length);
+            var messageContent = message.content.substring(botConfig.prefix.length + "CRI ".length);
         }
         var messageSplit = messageContent.split("");
         var result = "";
@@ -60,6 +60,33 @@ module.exports = {
                 message.channel.send(result);
             }
         }
+    },
+    criHelp: function(message, client){
+        console.log("criHelp function called!");
+        message.channel.send({embed: {
+                    color: Math.floor(Math.random()*16777215),  //random colour
+                    author: {
+                        name: client.user.username,
+                        icon_url: client.user.avatarURL
+                    },
+                    title: "**__CRI Help__**",
+                    description: "More information on how to use $cri",
+                    fields: [
+                        {
+                            name: "- " + botConfig.prefix + "cri {message} message2",
+                            value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: message2\""
+                        },
+                        {
+                            name: "- " + botConfig.prefix +  "cri {message1 message2",
+                            value: "The output will be \"\:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:one:      \:regional_indicator_m: \:regional_indicator_e: \:regional_indicator_s: \:regional_indicator_s: \:regional_indicator_a: \:regional_indicator_g: \:regional_indicator_e: \:two:\""
+                        },
+                        {
+                            name: "- " + botConfig.prefix + "cri message1 message2",
+                            value: "The output will be \"message1 message2\""
+                        }
+                    ]
+                }
+        });
     }
 }
 
