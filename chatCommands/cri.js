@@ -1,5 +1,6 @@
 const embedMessage = require("./embedMessage.js");
 const botConfig = require("../config.json");
+const specChar = require("../specialCharacter.json");
 
 module.exports = {
     CRIfunction: function(message, isEmbed){
