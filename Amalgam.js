@@ -13,7 +13,7 @@ const {time, remind} = require('./chatCommands/remind.js');
 const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
 const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
-const {uploadImg, deleteImg, listAllKeycodes, randomKeyword} = require('./chatCommands/img.js')
+const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js')
 
 //AWS imports
 const AWS = require('aws-sdk');
@@ -152,20 +152,6 @@ client.on("message", (message) => {
 function imageOutput(imagePath, message){
 	console.log("imageOutput function called!");
 	message.channel.send({files:[imagePath]});
-}
-
-function retrieveImg(keyCode, message){
-	var PouchDB = require('pouchdb');
-	var db = new PouchDB('imgLinkDatabase');
-	console.log("retrieveImg function called")
-
-	db.get(keyCode)
-	.then(function (doc){
-		message.channel.send("Here is your image! " + doc.link);
-	}).catch(function (err){
-		console.log(err);
-		message.channel.send("Image could not be retrieved, please check your keycode and try again.");
-	})
 }
 
 //refer to the JSON config file for the token

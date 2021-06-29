@@ -108,6 +108,34 @@ module.exports = {
         }).catch(function (err){
             console.log(err);
         });
+    },
+    retrieveImg: function(keyCode, message){
+        console.log("retrieveImg function called");
+
+        var docClient = new AWS.DynamoDB.DocumentClient();
+        var params = {
+            TableName: "ImageLink",
+            Key: {
+                "id": keyCode
+            },
+            AttributesToGet:[
+                'id', 'link'
+            ]
+        }
+        
+        //Check if Keycode exists in database
+        docClient.get(params, function(err, data){
+            //Didn't find a keycode, proceed to prepare upload.
+            if(data.Item === undefined){
+                console.log("Could not find item!");
+                message.channel.send("Image could not be retrieved, please check your keycode and try again.");
+            }
+            //Found an image with associated keyword, abort upload.
+            else if(data){
+                console.log("Found an item!" + data.Item);
+                message.channel.send("Here's your image! " + data.Item.link);
+            }
+        })
     }
 }
 
