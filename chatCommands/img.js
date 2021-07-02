@@ -2,10 +2,11 @@ const AWS = require('aws-sdk');
 const botConfig = require("../config.json");
 const request = require(`request`);
 const fs = require(`fs`);
+const embedMessage = require("../chatCommands/embedMessage");
 
 module.exports = {
     //upload an Image to Imgur and AWS dynamoDB
-    uploadImg: function(keyCode, message){
+    uploadImg: async function(keyCode, message){
         console.log("uploadImg function called");
 
         var docClient = new AWS.DynamoDB.DocumentClient();
@@ -41,73 +42,134 @@ module.exports = {
         })
     },
     //Delete image
-    deleteImg: function(keyCode, message){
-        var PouchDB = require('pouchdb');
+    deleteImg: async function(keyCode, message){
+        console.log("uploadImg function called");
+        var docClient = new AWS.DynamoDB.DocumentClient();
         var imgur = require('imgur');
-        var db = new PouchDB('imgLinkDatabase');
-        console.log("deleteImg function called");
 
-        //Get the doc
-        db.get(keyCode)
-            .then(function (doc){
-                //if doc author doesn't match the message author, disallow access.
-                if(doc.author === message.author.id){
-                    //if it does, remove the database entry
-                    imgur.deleteImage(doc.jsonData.deletehash)
-                    .then(function (result){
+        var params = {
+            TableName: "ImageLink",
+            Key:{
+                "id": keyCode
+            },
+            AttributesToGet: [
+                'id', 'author','jsonData'
+            ]
+        }
+
+        docClient.get(params, function(err, data){
+            //Item doesn't match anything, stop.
+            if(data.Item === undefined){
+                console.log("could not find item, can't delete nothing.");
+                message.channel.send("That keycode doesn't match anything in our database!")
+            }
+            else{
+                //Item matches author, delete item.
+                if(data.Item.author === message.author.id || message.author.id === botConfig.ownerID ){
+                    imgur.deleteImage(data.Item.jsonData.deletehash)
+                    .then(function(result){
                         console.log(result);
-                        message.channel.send("Image was successfully deleted!");
-                    }).catch(function (err){
+                        //Now that item is deleted, remove item from database
+                        var deleteParam = {
+                            TableName: "ImageLink",
+                            Key:{
+                                "id": keyCode
+                            }
+                        }
+                        docClient.delete(params, async function(err, data){
+                            if(err){
+                                console.log("Unable to delete item. Error JSON: ", JSON.stringify(err, null, 2));
+                            }
+                            else{
+                                console.log("Deletion succeeded: ", JSON.stringify(data, null, 2));
+                                message.channel.send("Item " + keyCode + " successfully deleted!");
+                                var metadata = await getMetadata();
+                                var keyCodes = metadata.Item.contents;
+                                var index = keyCodes.findIndex(element => element === keyCode);
+                                keyCodes.splice(index, 1);
+                                setMetadata(keyCodes);
+                            }
+                        })
+                    })
+                    .catch(function(err){
                         console.log(err);
-                    });		
-                    db.remove(doc);
+                        message.channel.send("Something went wrong when deleting item, Try again later.");
+                    })
                 }
+                //Can't delete due to incorrect permissions.
                 else{
-                    message.channel.send("You are not the author of this image! You cannot delete this! If you believe this image is offensive, please tell the developer about it. If he doesn't care, too bad I suppose.");
+                    message.channel.send("You can't delete this image as you are not the author!")
                 }
-            }).then(function (result){
-
-            }).catch(function (err){
-                message.channel.send("Key code doesn't exist! Please check the key code and try again later.");
-            });
+            }
+        });
     },
     //Lists all the keycodes in the database.
-    listAllKeycodes: function(message){
-        var PouchDB = require('pouchdb');
-        var db = new PouchDB('imgLinkDatabase');
+    listAllKeycodes: async function(message){
+        console.log("Listallkeycodes called!");
+        var metadata = await getMetadata();
+        var keyCodes = metadata.Item.contents;
+        console.log(keyCodes);
 
-        db.allDocs({
-            include_docs: true
-        }).then(function (result){
-            //List all docs
-            var outputMessage = "";
-            for(var i = 0; i < result.total_rows; i++){
-                outputMessage += result.rows[i].id + "\n";
-            }
-            console.log(outputMessage);
-            message.channel.send("Here is the list of keycodes!\n");
-            embedMessage(message, outputMessage);
-        }).catch(function (err){
-            console.log(err);
+        //Generate list
+        var outputMessage = "";
+        keyCodes.forEach(function(item){
+            outputMessage += item + "\n";
         });
+        console.log(outputMessage);
+        message.channel.send("Here is the list of keycodes!\n");
+        embedMessage(message, outputMessage);
     },
     //Choose a random keyword and retrieve the image
-    randomKeyword: function(message){
-        var PouchDB = require('pouchdb');
-        var db = new PouchDB('imgLinkDatabase');
+    randomKeyword: async function(message){
+        console.log("randomimg called!");
+        var metadata = await getMetadata();
+        var keyCodes = metadata.Item.contents;
 
-        db.allDocs({
-            include_docs: true
-        }).then(function (result){
-            //Choose a random number from the total amount of rows in the list.		
-            var choice = Math.floor((Math.random() * result.total_rows));
-            var keycode = result.rows[choice].id;
-            message.channel.send("Chosen keycode: " + keycode);
-            //Get image
-            retrieveImg(keycode, message);
-        }).catch(function (err){
-            console.log(err);
-        });
+        //Randomly choose a valid num, and trigger retrieve img with chosen keycode.
+        var choice = Math.floor(Math.random() * keyCodes.length);
+        var keycode = (choice === 0) ? keyCodes[choice] : keyCodes[choice - 1];
+
+        message.channel.send("Keycode chosen: " + keycode);
+        module.exports.retrieveImg(keycode, message);
+    },
+    updateImageLinkMetadata: function(){
+        var docClient = new AWS.DynamoDB.DocumentClient();
+
+        var params = {
+            TableName: "ImageLink"
+        }
+
+        docClient.scan(params, scanAndUpload);
+
+        //On finishing scan, upload new metadata to metadata table
+        function scanAndUpload(err, data){
+            if (err){
+                console.log("couldn't scan " + JSON.stringify(err, null, 2));
+            } else{
+                var metadataObject = {items: []};
+                console.log("Scan succeeded.");
+                data.Items.forEach(function(item){
+                    metadataObject.items.push(item.id);
+                });
+                
+                var params = {
+                    TableName: "ImageLinkMetadata",
+                    Item:{
+                        "docName": "keyCodeList",
+                        "contents": metadataObject
+                    } 
+                }
+                
+                docClient.put(params, function(err, data){
+                    if(err){
+                        console.log("Something went wrong: " + JSON.stringify(err, null, 2));
+                    }
+                    else{
+                        console.log("Upload complete!");
+                    }
+                });
+            }
+        }
     },
     retrieveImg: function(keyCode, message){
         console.log("retrieveImg function called");
@@ -140,7 +202,7 @@ module.exports = {
 }
 
 //Download function called by uploadImg()
-function download(url, message, keyCode){
+async function download(url, message, keyCode){
 	console.log("download function called")
 	var w = fs.createWriteStream('./imgStore/img.png');
 	request.get(url).on('error', console.error).pipe(w);
@@ -156,7 +218,7 @@ function download(url, message, keyCode){
 }
 
 //get a base64 string and upload it to imgur.
-function uploadImgToImgur(file, message, keyCode){
+async function uploadImgToImgur(file, message, keyCode){
 	console.log("uploadImgToImgur function called!");
     var imgur = require('imgur');
     var docClient = new AWS.DynamoDB.DocumentClient();
@@ -178,19 +240,67 @@ function uploadImgToImgur(file, message, keyCode){
             }
         }
 
-		docClient.put(params, function(err, data){
+		docClient.put(params, async function(err, data){
             if(err){
                 console.log("Unable to add item. Error JSON: " + JSON.stringify(err, null, 2));
                 message.channel.send("Image-to-Keyword link was not established for some reason! Image cannot be retrieved later!")
             }
             else{
                 message.channel.send("Your image can be retrieved by typing **" + botConfig.prefix + "getimg " + keyCode + "**.");
+                var metadata = await getMetadata();
+                var keyCodes = metadata.Item.contents.items;
+                keyCodes.push(keyCode);
+                setMetadata(keyCodes);
             }
         });
     })
     .catch(function (err) {
 		console.error(err.message);
 		message.channel.send("Image not uploaded! Please try again later!");
+    });
+}
+
+async function getMetadata(){
+    var docClient = new AWS.DynamoDB.DocumentClient();
+
+    var params = {
+        TableName: "ImageLinkMetadata",
+        Key:{
+            "docName": "keyCodeList"
+        }
+    }
+    try{
+        var data = await docClient.get(params).promise();
+        console.log("Successfully retrieved!");
+        console.log(data);
+        return data;
+    } catch(err){
+        console.log("failed to retrieve data", JSON.stringify(err, null, 2));
+    }
+}
+
+function setMetadata(newList){
+    var docClient = new AWS.DynamoDB.DocumentClient();
+
+    var params = {
+        TableName: "ImageLinkMetadata",
+        Key:{
+            "docName": "keyCodeList"
+        },
+        UpdateExpression: "set contents = :c",
+        ExpressionAttributeValues:{
+            ":c": newList
+        },
+        ReturnValues: "UPDATED_NEW"
+    }
+
+    docClient.update(params, function(err, data){
+        if(err){
+            console.log("Something went wrong: ", JSON.stringify(err, null, 2));
+        }
+        else{
+            console.log("Successfully updated! " + JSON.stringify(data, null, 2));
+        }
     });
 }
 

@@ -23,7 +23,7 @@ const AWS = require('aws-sdk');
 //const {importToDynamoDB} = require('./dynaDBFunctions/importToDynamo.js');
 
 //Parses the message and figures out what command has been typed by the user
-function parseCommand(message) {
+async function parseCommand(message) {
 	var i;
 	//Get the message and split it
 	var messageContent = message.content.substring(botConfig.prefix.length);
@@ -147,12 +147,6 @@ client.on("message", (message) => {
 	console.log("Message Recieved!");
 	parseCommand(message);	
 });
-
-//image output
-function imageOutput(imagePath, message){
-	console.log("imageOutput function called!");
-	message.channel.send({files:[imagePath]});
-}
 
 //refer to the JSON config file for the token
 client.login(botConfig.token);
