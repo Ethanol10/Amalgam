@@ -1,5 +1,5 @@
 //Node Libraries
-const Discord = require("discord.js");
+const Discord = require('discord.js');
 const client = new Discord.Client();
 const botConfig = require("./config.json");
 
@@ -33,20 +33,16 @@ async function parseCommand(message) {
 	//Check if the Convert Regional Indicator function should be called.
 	switch(messageSplit[0]){
 		case "cri":
-			message.delete(1000);
 			(messageSplit[1] === '-embed') ?
 			 			CRIfunction(message, true) : CRIfunction(message, false);
 			break;
 		case "help":
-			message.delete(1000);
 			mainHelpDialog(message, client);
 			break;	
 		case "command":
-			message.delete(1000);
 			mainHelpDialog(message);
 			break;
 		case "crihelp":
-			message.delete(1000);
 			criHelp(message, client);
 			break;
 		case "calchelp":
@@ -84,7 +80,6 @@ async function parseCommand(message) {
 			mshrug(message);
 			break;	
 		case "clap":
-			message.delete(1000);
 			(messageSplit[1].toLowerCase() === '-embed') ? gatekeepingClap(message, true): gatekeepingClap(message, false);	
 			break;	
 		case "mask":
