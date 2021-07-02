@@ -1,5 +1,7 @@
-
+node_modules
 config.json
 imgLinkDatabase
 imgStore
 imgStore/img.png
+output.json
+*.png
