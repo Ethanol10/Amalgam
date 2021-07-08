@@ -13,10 +13,13 @@ const {time, remind} = require('./chatCommands/remind.js');
 const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
 const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
-const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js')
+const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js');
+const {play, pause} = require('./chatCommands/VCmusic.js');
 
 //AWS imports
 const AWS = require('aws-sdk');
+
+var streamMetadata = [];
 
 //DynamoDB stuff
 
@@ -107,6 +110,12 @@ async function parseCommand(message) {
 			break;
 		case "randomimg":
 			randomKeyword(message);
+			break;
+		case "play":
+			play(message, messageSplit[1], streamMetadata);
+			break;
+		case "pause":
+			pause(message, streamMetadata);
 			break;
 	}
 }
