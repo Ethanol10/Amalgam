@@ -14,7 +14,7 @@ const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
 const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
 const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js');
-const {play, pause} = require('./chatCommands/VCmusic.js');
+const {play, pause, resume} = require('./chatCommands/VCmusic.js');
 
 //AWS imports
 const AWS = require('aws-sdk');
@@ -116,6 +116,9 @@ async function parseCommand(message) {
 			break;
 		case "pause":
 			pause(message, streamMetadata);
+			break;
+		case "resume":
+			resume(message, streamMetadata);
 			break;
 	}
 }

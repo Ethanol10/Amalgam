@@ -60,5 +60,12 @@ npm install
 **mask [targetUser] [message]**
 *Masks your message as the target user's message by sending an embedded message with the target user's name on it*
 
-**$play [youtubeLink]**
+**play [youtubeLink]**
 *Streams audio from youtube and plays in the users VC*
+*Alternatively, if a stream is paused, and the user wants to resume, this can be called again without the youtube link*
+
+**pause**
+*Pauses a stream in the same voice channel that the user is in. Does nothing if the user is not in the same channel*
+
+**resume**
+*Resumes a paused stream*
