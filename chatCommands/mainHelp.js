@@ -63,6 +63,26 @@ module.exports = {
                 {
                     name: "- " + botConfig.prefix + "mask [targetUser] [message]",
                     value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
+                },
+                {
+                    name: "- " + botConfig.prefix + "play [youtubeLink]",
+                    value: "Plays a song through **YouTube only.** Alternatively, this can be used without a link to resume a paused stream."
+                },
+                {
+                    name: "- " + botConfig.prefix + "pause",
+                    value: "Pauses a currently playing song."
+                },
+                {
+                    name: "- " + botConfig.prefix + "resume",
+                    value: "Resumes a currently paused song."
+                },
+                {
+                    name: "- " + botConfig.prefix + "skip",
+                    value: "Skips a song that is currently playing. If there is nothing else in the playlist, the bot will leave the voice channel."
+                },
+                {
+                    name: "- " + botConfig.prefix + "stop",
+                    value: "Stops the playback of the entire list of songs queued. "
                 }
             ]
           }

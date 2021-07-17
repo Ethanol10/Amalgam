@@ -39,10 +39,7 @@ module.exports = {
                 streamMeta[index].youtubeLinks.push(ytLink);
                 return;
             }
-            //somecases the bot is still in the chat but not playing anything. this covers that.
-            else{
-                
-            }
+            //some cases the bot is still in the chat but not playing anything. this covers that.
             
         }
 
@@ -67,6 +64,8 @@ module.exports = {
         //Search the array for the right dispatcher that matches the channel that the person is in.
         var index = getMetadataIndex(streamMeta, message.guild);
         if(index !== -1){
+            //Buggy stuff, needs to do this when paused and resumed and paused all in that order.
+            //Will fix when an update is pushed.
             streamMeta[index].dispatcherStream.resume();
             streamMeta[index].dispatcherStream.pause();
             message.channel.send("Pausing playback in " + "<#" + streamMeta[index].vc + ">" );
@@ -76,6 +75,7 @@ module.exports = {
             message.channel.send("There's nothing to pause right now!");
         }
     },
+    //Resumes a currently paused stream in the guild.
     resume: function(message, streamMeta){
         console.log("resume function called!");
         var voiceChannel = message.member.voice.channel;
@@ -88,7 +88,8 @@ module.exports = {
         var index = getMetadataIndex(streamMeta, message.guild);
         console.log(index);
         if(index !== -1){
-            //buggy shit is happening here. furthermore the API seems to speedup playback??
+            //buggy shit is happening here. This needs to repeat twice to trigger the resume function. 
+            //Will replace if problem is fixed.
             streamMeta[index].dispatcherStream.pause();
             streamMeta[index].dispatcherStream.resume();
             streamMeta[index].dispatcherStream.pause();
@@ -101,14 +102,44 @@ module.exports = {
             message.channel.send("There's nothing to resume right now!")
         }
     },
+    //Skips the currents song playing in the stream, if nothing is next stream ends.
     skip: function(message, streamMeta){
+        console.log("skip function called!")
+        var voiceChannel = message.member.voice.channel;
+        if(!voiceChannel){
+            message.channel.send("You aren't in a voice channel!");
+            return;
+        }
 
+        var index = getMetadataIndex(streamMeta, message.guild);
+        console.log(index);
+        if(index !== -1){
+            console.log("skip performed")
+            message.channel.send("Skipping current song");
+            streamMeta[index].dispatcherStream.end();
+        }
     },
+    //Stop playing all songs, destroys playlist in current guild called.
     stop: function(message, streamMeta){
+        console.log("stop function called!");
+        var voiceChannel = message.member.voice.channel;
+        if(!voiceChannel){
+            message.channel.send("You aren't in a voice channel!");
+            return;
+        }
 
+        var index = getMetadataIndex(streamMeta, message.guild);
+        console.log(index);
+        if(index !== -1){
+            console.log("Killing stream: stop command");
+            message.channel.send("Terminating Stream!");
+            streamMeta.splice(index, 1);
+            voiceChannel.leave();
+        }
     }
 }
 
+//Gets the index inside the metadata global array
 function getMetadataIndex(streamMeta, guild){
     for(var i = 0; i < streamMeta.length; i++){
         if(streamMeta[i].guild === guild){
@@ -118,6 +149,7 @@ function getMetadataIndex(streamMeta, guild){
     return -1
 }
 
+//Sets up a new stream. Configures the disconnect event
 function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta){
     voiceChannel.join()
         .then(connection => {
@@ -156,14 +188,16 @@ function onStart(message, ytLink){
     console.log("playing: " + ytLink)
 }
 
-//Check list if more songs are needed to be played.
+//On finish callback after song is finished or ended prematurely. checks if more songs 
+//are in the queue and ends the stream if there are none left.
 function onFinish(end, streamMeta, voiceChannel, message, connection, streamOptions){
     console.log("Audio ended, checking for more links to play in queue");
     var index = getMetadataIndex(streamMeta, message.guild);
     streamMeta[index].youtubeLinks.shift();
     if(streamMeta[index].youtubeLinks.length === 0){
-        console.log("killing stream.")
+        console.log("killing stream: end of playlist")
         streamMeta.splice(index, 1);
+        message.channel.send("Finished playlist!");
         voiceChannel.leave();
     }
     else{

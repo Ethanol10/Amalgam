@@ -63,6 +63,7 @@ npm install
 **play [youtubeLink]**
 *Streams audio from youtube and plays in the users VC*
 *Alternatively, if a stream is paused, and the user wants to resume, this can be called again without the youtube link*
+*Currently this function only supports single video links. Playlists are not supported as of yet*
 
 **pause**
 *Pauses a stream in the same voice channel that the user is in. Does nothing if the user is not in the same channel*
