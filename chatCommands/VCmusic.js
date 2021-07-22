@@ -25,12 +25,11 @@ module.exports = {
 
         //If person starts up a new stream in a separate vc while active in another vc, deny usage.
         if(message.guild.me.voice.channel && (message.member.voice.channel !== message.guild.me.voice.channel) ){
-            message.channel.send("Sorry, someone is already using the bot for music! Perhaps add to the playlist in that channel?")
+            message.channel.send("Sorry, the bot is bound to <#" + voiceChannel + ">!" )
             return;
         }
 
         //if the bot is in the same voice channel as the user who initiated the command, add to current stream's youtubelink array.
-
         if(message.guild.me.voice.channel === message.member.voice.channel && (typeof(ytLink) === 'string')){
             var index = getMetadataIndex(streamMeta, message.guild);
             console.log(index);
@@ -136,6 +135,14 @@ module.exports = {
             streamMeta.splice(index, 1);
             voiceChannel.leave();
         }
+    },
+    getMetaIndex: function(streamMeta, guild){
+        for(var i = 0; i < streamMeta.length; i++){
+            if(streamMeta[i].guild === guild){
+                return i;
+            }
+        }
+        return -1
     }
 }
 
@@ -167,7 +174,8 @@ function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta){
                 youtubeLinks: [],
                 vc: voiceChannel,
                 guild: message.guild,
-                pause: false
+                pause: false,
+                msg: message
             }
             streamMetadata.youtubeLinks.push(ytLink);
             streamMeta.push(streamMetadata);

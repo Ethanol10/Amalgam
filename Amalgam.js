@@ -14,7 +14,7 @@ const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
 const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
 const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js');
-const {play, pause, resume, skip, stop} = require('./chatCommands/VCmusic.js');
+const {play, pause, resume, skip, stop, getMetaIndex} = require('./chatCommands/VCmusic.js');
 
 //AWS imports
 const AWS = require('aws-sdk');
@@ -159,6 +159,23 @@ client.on("message", (message) => {
 	
 	console.log("Message Recieved!");
 	parseCommand(message);	
+});
+
+//Check if the bot is by itself in the channel, terminate stream for that guild and delete metadata.
+client.on("voiceStateUpdate", (oldState, newState) => {
+	try{
+		if(newState.guild.me.voice.channel.members.size === 1){
+			var index = getMetaIndex(streamMetadata, newState.guild);
+			streamMetadata[index].msg.channel.send("Nobody is in the bound voice channel: <#" + streamMetadata[index].vc + ">, terminating the stream.")
+			streamMetadata.splice(index, 1);
+			newState.guild.me.voice.channel.leave();
+		}
+	}
+	catch (err){
+		if(err instanceof TypeError){
+			console.log("TypeError, but bot is probably not in VC, so no problems here.");
+		}
+	}
 });
 
 //refer to the JSON config file for the token
