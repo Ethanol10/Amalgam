@@ -1,9 +1,13 @@
 const ytdl = require('ytdl-core');
+const ytSearch = require('youtube-search');
+const botConfig = require("../config.json");
 
 module.exports = {
-    play: function(message, ytLink, streamMeta){
+    play: async function(message, ytquery, streamMeta){
         console.log("play function called!");
-        console.log("ytlink: " + typeof(ytLink));
+        console.log("ytquery: " + ytquery);
+
+        var rollingMessage = "";
 
         const streamOptions = {
             seek: 0,
@@ -18,7 +22,7 @@ module.exports = {
 
         //if they are in the vc that the bot is already in, and they paused the stream, restart the stream by searching the 
         //metadata and resuming playback. (end function here if true)
-        if(message.member.voice.channel === message.guild.me.voice.channel && typeof(ytLink) === 'undefined'){
+        if(message.member.voice.channel === message.guild.me.voice.channel && typeof(ytquery) === 'undefined'){
             module.exports.resume(message, streamMeta);
             return;
         }
@@ -30,11 +34,21 @@ module.exports = {
         }
 
         //if the bot is in the same voice channel as the user who initiated the command, add to current stream's youtubelink array.
-        if(message.guild.me.voice.channel === message.member.voice.channel && (typeof(ytLink) === 'string')){
+        if(message.guild.me.voice.channel === message.member.voice.channel && (typeof(ytquery) === 'string')){
             var index = getMetadataIndex(streamMeta, message.guild);
             console.log(index);
             if(index !== -1){
+                //Perform a search
                 message.channel.send("Adding your song to the queue!");
+                var ytLink = await search(message, ytquery);
+
+                if(ytLink === null){
+                    console.log("Link could not be found, abandon.");
+                    message.channel.send("Query inputted was invalid, try a different search parameter.");
+                    return;
+                }
+
+                //Push valid link into playlist.
                 streamMeta[index].youtubeLinks.push(ytLink);
                 return;
             }
@@ -42,11 +56,27 @@ module.exports = {
             
         }
 
-        //Setup for dispatcher to the Voice channel that the user is in.
-        message.channel.send("Initiating music stream for " + message.member.nickname);
+        //Setup for dispatcher to the Voice channel that the user is in. perform a search
+        rollingMessage += "Initiating music stream for <@" + message.member.id + ">\n";
+
         if(message.guild.me.voice.channel !== message.member.voice.channel){
-            message.channel.send("Joining: " + "<#" + voiceChannel + ">");
+           rollingMessage += "Binding to: " + "<#" + voiceChannel + ">\n";
         }
+
+        rollingMessage += "Searching for video with query: " + ytquery + "\n";
+
+        var ytLink = await search(message, ytquery);
+        console.log(ytLink);
+
+        if(ytLink === null){
+            console.log("Link could not be found, abandon.");
+            message.channel.send("Query inputted was invalid, try a different search parameter.");
+            return;
+        }
+        rollingMessage += "Found: " + ytLink.title;
+
+        //Send final message in one go. 
+        message.channel.send(rollingMessage);
 
         //Join the vc, then play audio
         newStream(message, voiceChannel, ytLink, streamOptions, streamMeta);
@@ -146,6 +176,24 @@ module.exports = {
     }
 }
 
+function search(message, query){
+    var options = {
+        maxResults: 2,
+        key: botConfig.ytAPIkey
+    }
+
+    return new Promise(resolve => {
+        ytSearch(query, options, function(err, results){
+            if(err){
+                message.channel.send("Something went wrong, try again later.");
+                console.log(err);
+                return null;
+            }
+            resolve(results[0]);
+        });
+    });
+}
+
 //Gets the index inside the metadata global array
 function getMetadataIndex(streamMeta, guild){
     for(var i = 0; i < streamMeta.length; i++){
@@ -157,11 +205,11 @@ function getMetadataIndex(streamMeta, guild){
 }
 
 //Sets up a new stream. Configures the disconnect event
-function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta){
+function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta, rollingMessage){
     voiceChannel.join()
         .then(connection => {
             console.log("joined: " + voiceChannel);
-            const stream = ytdl(ytLink, { filter: 'audioonly'});
+            const stream = ytdl(ytLink.link, { filter: 'audioonly'});
             const dispatcher = connection.play(stream, streamOptions);
 
             //Events on start and finish of audio playback.
@@ -192,8 +240,8 @@ function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta){
 //Callback after a song has ended.
 function onStart(message, ytLink){
     console.log("on start called")
-    message.channel.send("Now Playing: " + ytLink);
-    console.log("playing: " + ytLink)
+    message.channel.send("Now Playing: " + ytLink.link);
+    console.log("playing: " + ytLink.link)
 }
 
 //On finish callback after song is finished or ended prematurely. checks if more songs 
@@ -209,7 +257,7 @@ function onFinish(end, streamMeta, voiceChannel, message, connection, streamOpti
         voiceChannel.leave();
     }
     else{
-        const stream = ytdl(streamMeta[index].youtubeLinks[0], {filter : 'audioonly'});
+        const stream = ytdl(streamMeta[index].youtubeLinks[0].link, {filter : 'audioonly'});
         const newDispatcher = connection.play(stream, streamOptions);
         streamMeta[index].dispatcherStream = newDispatcher;
 

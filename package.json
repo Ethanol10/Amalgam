@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
-    "aws-sdk": "^2.938.0",
+    "aws-sdk": "^2.953.0",
     "discord.js": "^12.5.3",
     "ffmpeg-static": "^4.4.0",
     "form-data": "^3.0.1",
@@ -21,7 +21,8 @@
     "request": "^2.88.2",
     "uuid": "^3.4.0",
     "xmlhttprequest": "^1.8.0",
+    "youtube-search": "^1.1.6",
     "ytdl": "^1.4.1",
-    "ytdl-core": "^4.8.3"
+    "ytdl-core": "^4.9.0"
   }
 }

@@ -14,7 +14,7 @@ const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
 const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
 const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js');
-const {play, pause, resume, skip, stop, getMetaIndex} = require('./chatCommands/VCmusic.js');
+const {play, pause, resume, skip, stop, getMetaIndex, search} = require('./chatCommands/VCmusic.js');
 
 //AWS imports
 const AWS = require('aws-sdk');
@@ -112,7 +112,7 @@ async function parseCommand(message) {
 			randomKeyword(message);
 			break;
 		case "play":
-			play(message, messageSplit[1], streamMetadata);
+			play(message, messageContent.substring("play ".length), streamMetadata);
 			break;
 		case "pause":
 			pause(message, streamMetadata);
@@ -164,7 +164,7 @@ client.on("message", (message) => {
 //Check if the bot is by itself in the channel, terminate stream for that guild and delete metadata.
 client.on("voiceStateUpdate", (oldState, newState) => {
 	try{
-		if(newState.guild.me.voice.channel.members.size === 1){
+		if( newState.guild.me.voice.channel.members.size === 1 ){
 			var index = getMetaIndex(streamMetadata, newState.guild);
 			streamMetadata[index].msg.channel.send("Nobody is in the bound voice channel: <#" + streamMetadata[index].vc + ">, terminating the stream.")
 			streamMetadata.splice(index, 1);
