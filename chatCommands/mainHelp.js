@@ -65,7 +65,7 @@ module.exports = {
                     value: "Masks your message as the target user's message by sending an embedded message with the target user's name on it"
                 },
                 {
-                    name: "- " + botConfig.prefix + "play [youtubeLink]",
+                    name: "- " + botConfig.prefix + "play [youtubeLink/youtubeQuery]",
                     value: "Plays a song through **YouTube only.** Alternatively, this can be used without a link to resume a paused stream."
                 },
                 {
@@ -83,6 +83,10 @@ module.exports = {
                 {
                     name: "- " + botConfig.prefix + "stop",
                     value: "Stops the playback of the entire list of songs queued. "
+                },
+                {
+                    name:"- " + botConfig.prefix + "queue",
+                    value: "Lists all songs in playlist that has been currently setup in the current guild."
                 }
             ]
           }

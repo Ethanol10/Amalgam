@@ -60,7 +60,7 @@ npm install
 **mask [targetUser] [message]**
 *Masks your message as the target user's message by sending an embedded message with the target user's name on it*
 
-**play [youtubeLink]**
+**play [youtubeLink/youtubeQuery]**
 *Streams audio from youtube and plays in the users VC*
 *Alternatively, if a stream is paused, and the user wants to resume, this can be called again without the youtube link*
 *Currently this function only supports single video links. Playlists are not supported as of yet*
