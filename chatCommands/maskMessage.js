@@ -26,7 +26,7 @@ module.exports = {
             color: Math.floor(Math.random()*16777215),  //random colour
             author: {
                 name: memberUser.username,
-                icon_url: memberUser.avatarURL
+                icon_url: memberUser.avatarURL()
             },
             title: "",
             description: result

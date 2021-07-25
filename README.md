@@ -70,3 +70,6 @@ npm install
 
 **resume**
 *Resumes a paused stream*
+
+**queue**
+*Lists all songs in playlist that has been currently setup in the current guild.*

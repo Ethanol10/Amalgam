@@ -14,7 +14,7 @@ const {gatekeepingClap} = require('./chatCommands/gatekeeping.js');
 const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
 const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js');
-const {play, pause, resume, skip, stop, getMetaIndex, search} = require('./chatCommands/VCmusic.js');
+const {play, pause, resume, skip, stop, getMetaIndex, queue} = require('./chatCommands/VCmusic.js');
 
 //AWS imports
 const AWS = require('aws-sdk');
@@ -22,7 +22,6 @@ const AWS = require('aws-sdk');
 var streamMetadata = [];
 
 //DynamoDB stuff
-
 //const {importToDynamoDB} = require('./dynaDBFunctions/importToDynamo.js');
 
 //Parses the message and figures out what command has been typed by the user
@@ -125,6 +124,9 @@ async function parseCommand(message) {
 			break;
 		case "stop":
 			stop(message, streamMetadata);
+			break;
+		case "queue":
+			queue(message, streamMetadata);
 			break;
 	}
 }

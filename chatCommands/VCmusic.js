@@ -1,11 +1,14 @@
 const ytdl = require('ytdl-core');
 const ytSearch = require('youtube-search');
 const botConfig = require("../config.json");
+const embedMessage = require('./embedMessage.js');
+const { MessageManager } = require('discord.js');
 
 module.exports = {
     play: async function(message, ytquery, streamMeta){
         console.log("play function called!");
         console.log("ytquery: " + ytquery);
+        console.log("typeofQuery: " + typeof(ytquery));
 
         var rollingMessage = "";
 
@@ -22,7 +25,7 @@ module.exports = {
 
         //if they are in the vc that the bot is already in, and they paused the stream, restart the stream by searching the 
         //metadata and resuming playback. (end function here if true)
-        if(message.member.voice.channel === message.guild.me.voice.channel && typeof(ytquery) === 'undefined'){
+        if(message.member.voice.channel === message.guild.me.voice.channel && (typeof(ytquery) === 'undefined' || ytquery === "")){
             module.exports.resume(message, streamMeta);
             return;
         }
@@ -164,6 +167,34 @@ module.exports = {
             message.channel.send("Terminating Stream!");
             streamMeta.splice(index, 1);
             voiceChannel.leave();
+        }
+    },
+    queue: function(message, streamMeta){
+        console.log("listQueue function called!");
+        var voiceChannel = message.member.voice.channel;
+        if(!voiceChannel){
+            message.channel.send("You aren't in a voice channel!");
+            return;
+        }
+
+        var index = getMetadataIndex(streamMeta, message.guild);
+        console.log(index);
+        if(index !== -1){
+            console.log("listing queue for requested guild.");
+            var outputMessage = "";
+            outputMessage += "Next 10 songs in queue for: <#" + streamMeta[index].vc + ">\n\n"
+            if(streamMeta[index].youtubeLinks.length > 10){
+                for(var i = 0; i < 10; i++){
+                    outputMessage += (i + 1) + ": " + streamMeta[index].youtubeLinks[i].title + "\n";
+                }    
+            }
+            else{
+                for(var i = 0; i < streamMeta[index].youtubeLinks.length; i++){
+                    outputMessage += (i + 1) + ": " + streamMeta[index].youtubeLinks[i].title + "\n";
+                }    
+            }
+            
+            embedMessage(message, outputMessage);
         }
     },
     getMetaIndex: function(streamMeta, guild){
