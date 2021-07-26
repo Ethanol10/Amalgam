@@ -17,7 +17,8 @@ npm install
     "imgurPassword": <imgur Password>,
     "accessKeyId":<Amazon Access Key ID>,
     "secretAccessKey":<Amazon Secret Access Key>,
-    "region": <Amazon region>
+    "region": <Amazon region>,
+    "ytAPIkey": <Google API key>
 }
 ~~~~
 

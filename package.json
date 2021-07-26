@@ -12,6 +12,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
     "aws-sdk": "^2.953.0",
+    "core-js": "^3.15.2",
     "discord.js": "^12.5.3",
     "ffmpeg-static": "^4.4.0",
     "form-data": "^3.0.1",
@@ -19,9 +20,12 @@
     "imgur": "^0.3.2",
     "jsonfile": "^5.0.0",
     "request": "^2.88.2",
+    "underscore": "^1.13.1",
     "uuid": "^3.4.0",
     "xmlhttprequest": "^1.8.0",
+    "youtube-metadata-from-url": "^1.0.3",
     "youtube-search": "^1.1.6",
+    "youtube-validate": "^1.2.4",
     "ytdl": "^1.4.1",
     "ytdl-core": "^4.9.0"
   }

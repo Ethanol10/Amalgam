@@ -2,13 +2,37 @@ const ytdl = require('ytdl-core');
 const ytSearch = require('youtube-search');
 const botConfig = require("../config.json");
 const embedMessage = require('./embedMessage.js');
-const { MessageManager } = require('discord.js');
+const {validateUrl} = require('youtube-validate');
+const ytMetadataSearch = require('youtube-metadata-from-url');
 
 module.exports = {
     play: async function(message, ytquery, streamMeta){
         console.log("play function called!");
         console.log("ytquery: " + ytquery);
         console.log("typeofQuery: " + typeof(ytquery));
+
+        var isURL = false;
+        var linkMetadata;
+
+        //check the query to see if it's a valid youtube link, otherwise treat like a search query.
+        try{
+            var result = await validateUrl(ytquery);
+            console.log(result);
+            isURL = true;
+            try{
+                linkMetadata = await ytMetadataSearch.metadata(ytquery);
+                linkMetadata.link = ytquery;
+                console.log(linkMetadata);
+            }
+            catch(err){
+                console.log(err);
+                message.channel.send("Something went wrong, try again later.");
+                return;
+            }
+        }
+        catch(error){
+            console.log(error);
+        }
 
         var rollingMessage = "";
 
@@ -41,8 +65,15 @@ module.exports = {
             var index = getMetadataIndex(streamMeta, message.guild);
             console.log(index);
             if(index !== -1){
-                //Perform a search
+                
                 message.channel.send("Adding your song to the queue!");
+                //If already a URL, just push into the list with premade metadata.
+                if(isURL){
+                    streamMeta[index].youtubeLinks.push(linkMetadata);
+                    return;
+                }
+
+                //Otherwise perform a search
                 var ytLink = await search(message, ytquery);
 
                 if(ytLink === null){
@@ -66,17 +97,23 @@ module.exports = {
            rollingMessage += "Binding to: " + "<#" + voiceChannel + ">\n";
         }
 
-        rollingMessage += "Searching for video with query: " + ytquery + "\n";
-
-        var ytLink = await search(message, ytquery);
-        console.log(ytLink);
-
-        if(ytLink === null){
-            console.log("Link could not be found, abandon.");
-            message.channel.send("Query inputted was invalid, try a different search parameter.");
-            return;
+        //Check if URL, identify what to do with it.
+        if(isURL){ 
+            ytLink = linkMetadata;
         }
-        rollingMessage += "Found: " + ytLink.title;
+        else{
+            rollingMessage += "Searching for video with query: " + ytquery + "\n";
+
+            var ytLink = await search(message, ytquery);
+            console.log(ytLink);
+
+            if(ytLink === null){
+                console.log("Link could not be found, abandon.");
+                message.channel.send("Query inputted was invalid, try a different search parameter.");
+                return;
+            }
+            rollingMessage += "Found: " + ytLink.title;
+        }
 
         //Send final message in one go. 
         message.channel.send(rollingMessage);
