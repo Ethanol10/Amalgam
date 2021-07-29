@@ -15,6 +15,7 @@ const {mainHelpDialog} = require('./chatCommands/mainHelp.js');
 const {maskMessage} = require('./chatCommands/maskMessage.js');
 const {uploadImg, deleteImg, listAllKeycodes, randomKeyword, retrieveImg} = require('./chatCommands/img.js');
 const {play, pause, resume, skip, stop, getMetaIndex, queue} = require('./chatCommands/VCmusic.js');
+const { furiganaize } = require('./chatCommands/furiganaWriter');
 
 //AWS imports
 const AWS = require('aws-sdk');
@@ -128,6 +129,8 @@ async function parseCommand(message) {
 		case "queue":
 			queue(message, streamMetadata);
 			break;
+		case "furiganaize":
+			furiganaize(message);
 	}
 }
 
