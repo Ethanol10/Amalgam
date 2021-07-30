@@ -20,6 +20,7 @@
     "graceful-fs": "^4.2.6",
     "imgur": "^0.3.2",
     "jsonfile": "^5.0.0",
+    "phantomjs-prebuilt": "^2.1.16",
     "request": "^2.88.2",
     "underscore": "^1.13.1",
     "uuid": "^3.4.0",
