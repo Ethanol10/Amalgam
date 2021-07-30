@@ -5,7 +5,7 @@ const Discord = require('discord.js');
 module.exports = {
     furiganaize: async function(message){
         //formatting for this message:
-        //^furiganaize （僕＝ぼく）の（最弱＝さいきょう）を（以＝も）って、（君＝きみ）の（最強＝さいきょう）を（打＝う）ち（破＝やぶ）
+        //^furiganaize （僕＝ぼく）の（最弱＝さいきょう）を（以＝も）って、（君＝きみ）の（最強＝さいきょう）を（打＝う）ち（破＝やぶ）る
         var prefix = botConfig.prefix + "furiganaize ";
         rawMessageContent = message.content.substring(prefix.length);
         //message.channel.send(rawMessageContent);
@@ -16,7 +16,7 @@ module.exports = {
             rb: "",
             rt: ""
         }
-        var rbWriting = false;
+        var rbWriting = true;
         var parenthesisFlag = false;
         var equalFlag = false;
         for(var i = 0; i < rawMessageContent.length; i++){
@@ -45,6 +45,9 @@ module.exports = {
                 if(rbWriting){
                     if(rawMessageContent.charAt(i) === "\n"){
                         object.rb += "<br/>";
+                        textObjects.push({...object});
+                        object.rb = "";
+                        object.rt = "";
                     }
                     else{
                         object.rb += rawMessageContent.charAt(i);
@@ -77,7 +80,7 @@ module.exports = {
         */
         for(var i = 0; i < textObjects.length; i++){
             //message.channel.send("bottom: " + textObjects[i].rb + " top: " + textObjects[i].rt);
-            ruby += textObjects[i].rb + "<rp>(</rp><rt>" + textObjects[i].rt + "</rt><rp>)</rp>\n"
+            ruby += textObjects[i].rb + "<rp>(</rp><rt><b>" + textObjects[i].rt + "</b></rt><rp>)</rp>\n"
             if(textObjects[i].rb.includes("<br/>")){
                 ruby+= "</ruby><br/>\n<ruby>";
             }
@@ -89,7 +92,7 @@ module.exports = {
         //calculate whether the maxwidth is exceeded
         var widthOp;
         var multiplier = 45;
-        var maxWidth = 900;
+        var maxWidth = 1000;
         if(rbLength > rtLength){
             if(rbLength * multiplier > maxWidth){
                 widthOp = maxWidth;
@@ -151,6 +154,9 @@ async function setImg(ruby, options){
                         font-size: 3em;
                         color: white;
                         font-family: "IPAGothic" 
+                    }
+                    rt{
+                        text-align: center;
                     }
                 </style>
                 <head></head>
