@@ -87,6 +87,10 @@ module.exports = {
                 {
                     name:"- " + botConfig.prefix + "queue",
                     value: "Lists all songs in playlist that has been currently setup in the current guild."
+                },
+                {
+                    name: "- " + botConfig.prefix + "furiganaize (bottomtext = toptext)normaltext",
+                    value: "Puts text in the form of furigana. Specify the bottom section of the text and the top part of the text in the format above. Text not in brackets will be treated as bottom text without any top text applied."
                 }
             ]
           }
