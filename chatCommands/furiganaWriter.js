@@ -113,7 +113,12 @@ module.exports = {
             quality: 100,
             streamType: 'png',
             siteType: 'html',
-            defaultWhiteBackground: false
+            phantomjs: 'phantomjs-prebuilt',
+            defaultWhiteBackground: false,
+            phantomConfig: {
+                'script-encoding': 'utf8',
+                'output-encoding': 'utf8'
+            }
         };
         
         //message.channel.send(ruby);
