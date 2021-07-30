@@ -1,5 +1,6 @@
 const webshot = require('webshot-node');
 const botConfig = require('../config.json');
+const Discord = require('discord.js');
 
 module.exports = {
     furiganaize: async function(message){
@@ -43,7 +44,6 @@ module.exports = {
             if(!parenthesisFlag && !equalFlag){
                 if(rbWriting){
                     if(rawMessageContent.charAt(i) === "\n"){
-                        console.log("linebreakrb!");
                         object.rb += "<br/>";
                     }
                     else{
@@ -120,7 +120,20 @@ module.exports = {
 
         await setImg(ruby, options);        
 
-        message.channel.send({files: ["./imgStore/furiganaImg.png"]}); 
+        var attachment = new Discord.MessageAttachment('./imgStore/furiganaImg.png', 'furiganaImg.png');
+        message.channel.send(
+            {embed:{
+                color: Math.floor(Math.random()*16777215), //Random colour
+                author: {
+                    name: message.author.username,
+                    icon_url: message.author.avatarURL()
+                }, //make the caller the author.
+                image: {
+                    url: 'attachment://furiganaImg.png'
+                }
+            },
+            files: [attachment]
+        }); 
     }
 }
 
