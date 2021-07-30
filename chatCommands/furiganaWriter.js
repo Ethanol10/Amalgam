@@ -149,7 +149,8 @@ async function setImg(ruby, options){
                 <style>
                     ruby{
                         font-size: 3em;
-                        color: white; 
+                        color: white;
+                        font-family: "IPAGothic" 
                     }
                 </style>
                 <head></head>
