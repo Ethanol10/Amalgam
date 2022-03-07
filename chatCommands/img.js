@@ -212,7 +212,7 @@ async function download(url, message, keyCode){
 		console.log("Image Downloaded!: " + message.attachments.first().filename);
 		//Upload image to imgur.
 		var base64Img = base64_encode('imgStore/img.png');
-		console.log(base64Img);
+		//console.log(base64Img);
 		uploadImgToImgur(base64Img, message, keyCode);
 	})
 }
