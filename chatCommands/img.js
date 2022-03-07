@@ -29,7 +29,6 @@ module.exports = {
             if(data.Item === undefined){
                 console.log("Could not find item, keycode is available");
                 //Check Attachment exists
-                console.log(message.attachments.first().url);
                 if(typeof message.attachments.first() !== 'undefined'){
                     console.log("Stage 1 passed: " + message.attachments.first().url);
                     download(message.attachments.first().url, message, keyCode);
@@ -256,7 +255,8 @@ async function uploadImgToImgur(file, message, keyCode){
         });
     })
     .catch(function (err) {
-		console.error(err.message);
+        console.log(err);
+		console.log(err.message);
 		message.channel.send("Image not uploaded! Please try again later!");
     });
 }
