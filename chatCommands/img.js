@@ -29,7 +29,7 @@ module.exports = {
             if(data.Item === undefined){
                 console.log("Could not find item, keycode is available");
                 //Check Attachment exists
-                if(message.attachments.first()){
+                if(typeof message.attachments.first() !== 'undefined'){
                     console.log("Stage 1 passed: " + message.attachments.first().filename);
                     download(message.attachments.first().url, message, keyCode);
                 }
