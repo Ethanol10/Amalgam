@@ -3,7 +3,12 @@ const botConfig = require('../config.json');
 module.exports = {
     mainHelpDialog: function(message, client){
         console.log("mainHelpDialog function called!");
-        message.channel.send({embed: {
+        message.channel.send({ embeds: [module.exports.helpEmbed(client)]
+        });
+    },
+
+    helpEmbed: function(client){
+        return embed = {
             color: Math.floor(Math.random()*16777215),  //random colour
             author: {
               name: client.user.username,
@@ -93,7 +98,6 @@ module.exports = {
                     value: "Puts text in the form of furigana. Specify the bottom section of the text and the top part of the text in the format above. Text not in brackets will be treated as bottom text without any top text applied."
                 }
             ]
-          }
-        });
+        };
     }
 }

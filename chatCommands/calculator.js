@@ -35,7 +35,7 @@ module.exports = {
                 console.log("Invalid operand in argument 2");
                 break;
         }
-        message.channel.send(result);
+        message.channel.send(result + "");
     }
 }
 

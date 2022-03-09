@@ -85,7 +85,7 @@ module.exports = {
         }
         else{
             let result = await promise;
-            message.channel.send(message.author + result);
+            message.channel.send("<@!" + message.author + ">"+ result);
             console.log("success");
         }
     }  

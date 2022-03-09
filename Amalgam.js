@@ -1,6 +1,15 @@
 //Node Libraries
 const Discord = require('discord.js');
-const client = new Discord.Client();
+const {Client, Intents} = require('discord.js');
+const client = new Client(
+	{
+		intents:[
+			Intents.FLAGS.DIRECT_MESSAGES,
+			Intents.FLAGS.GUILD_VOICE_STATES,
+			Intents.FLAGS.GUILD_MESSAGES,
+			Intents.FLAGS.GUILDS
+		]
+	});
 const botConfig = require("./config.json");
 
 //chat command imports
@@ -58,7 +67,8 @@ async function parseCommand(message) {
 				message.channel.send("Please input a number after the command.");
 			}
 			else{
-				message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1));
+				console.log(Math.floor((Math.random() * messageSplit[1]) + 1));
+				message.channel.send(Math.floor((Math.random() * messageSplit[1]) + 1) + "");
 			}
 			break;
 		case "clone":
@@ -158,7 +168,7 @@ client.on("ready", () => {
 });
 
 //Check for message and send it to the parser
-client.on("message", (message) => {
+client.on("messageCreate", (message) => {
   //Don't check the message if it does not start with the prefix or is from a bot.
 	if (message.author.bot || message.content.indexOf(botConfig.prefix) !== 0) return;
 	
