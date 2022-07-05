@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.5.3",
+    "@discordjs/opus": "^0.8.0",
     "aws-sdk": "^2.956.0",
     "core-js": "^3.15.2",
     "discord.js": "^12.5.3",
