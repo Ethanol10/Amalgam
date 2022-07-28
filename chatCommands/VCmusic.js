@@ -4,6 +4,7 @@ const botConfig = require("../config.json");
 const embedMessage = require('./embedMessage.js');
 const {validateUrl} = require('youtube-validate');
 const ytMetadataSearch = require('youtube-metadata-from-url');
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 module.exports = {
     play: async function(message, ytquery, streamMeta){
@@ -42,7 +43,7 @@ module.exports = {
         };
         var voiceChannel = message.member.voice.channel;
         //Check if the user is in a channel to play music (end function here if true)
-        if(!voiceChannel){
+        if(!voiceChannel || !voiceChannel.isVoice){
             message.channel.send("You must be in a channel to play music!");
             return;
         }
@@ -117,7 +118,8 @@ module.exports = {
 
         //Send final message in one go. 
         message.channel.send(rollingMessage);
-
+    
+        console.log(voiceChannel);
         //Join the vc, then play audio
         newStream(message, voiceChannel, ytLink, streamOptions, streamMeta);
     },
@@ -274,35 +276,37 @@ function getMetadataIndex(streamMeta, guild){
 
 //Sets up a new stream. Configures the disconnect event
 function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta, rollingMessage){
-    voiceChannel.join()
-        .then(connection => {
-            console.log("joined: " + voiceChannel);
-            const stream = ytdl(ytLink.link, { filter: 'audioonly'});
-            const dispatcher = connection.play(stream, streamOptions);
+    var connection = joinVoiceChannel({
+        channelId: voiceChannel,
+        guildId: message.guildId
+    });
 
-            //Events on start and finish of audio playback.
-            dispatcher.on("start", () => onStart(message, ytLink));
-            dispatcher.on("finish", end => onFinish(end, streamMeta, voiceChannel, message, connection, streamOptions));
-            
-            //write metadata to global array
-            var streamMetadata = {
-                dispatcherStream: dispatcher,
-                youtubeLinks: [],
-                vc: voiceChannel,
-                guild: message.guild,
-                pause: false,
-                msg: message
-            }
-            streamMetadata.youtubeLinks.push(ytLink);
-            streamMeta.push(streamMetadata);
-            connection.on("disconnect", () => {
-                console.log("client has been forcefully disconnected, destroy stream.");
-                var index = getMetadataIndex(streamMeta, message.guild);
-                streamMeta.splice(index, 1);
-                console.log(streamMeta);
-            })
-        })
-        .catch(err => console.log("Something went wrong: " + err));
+    console.log("joined: " + voiceChannel);
+    const stream = ytdl(ytLink.link, { filter: 'audioonly'});
+    const dispatcher = connection.play(stream, streamOptions);
+
+    //Events on start and finish of audio playback.
+    dispatcher.on("start", () => onStart(message, ytLink));
+    dispatcher.on("finish", end => onFinish(end, streamMeta, voiceChannel, message, connection, streamOptions));
+    
+    //write metadata to global array
+    var streamMetadata = {
+        dispatcherStream: dispatcher,
+        youtubeLinks: [],
+        vc: voiceChannel,
+        guild: message.guild,
+        pause: false,
+        msg: message
+    }
+    streamMetadata.youtubeLinks.push(ytLink);
+    streamMeta.push(streamMetadata);
+    connection.on("disconnect", () => {
+        console.log("client has been forcefully disconnected, destroy stream.");
+        var index = getMetadataIndex(streamMeta, message.guild);
+        streamMeta.splice(index, 1);
+        console.log(streamMeta);
+    })
+
 }
 
 //Callback after a song has ended.

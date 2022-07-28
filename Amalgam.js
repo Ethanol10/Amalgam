@@ -1,13 +1,14 @@
 //Node Libraries
 const Discord = require('discord.js');
-const {Client, Intents} = require('discord.js');
+const {Client, GatewayIntentBits} = require('discord.js');
 const client = new Client(
 	{
 		intents:[
-			Intents.FLAGS.DIRECT_MESSAGES,
-			Intents.FLAGS.GUILD_VOICE_STATES,
-			Intents.FLAGS.GUILD_MESSAGES,
-			Intents.FLAGS.GUILDS
+			GatewayIntentBits.Guilds,
+			GatewayIntentBits.GuildVoiceStates,
+			GatewayIntentBits.GuildMessages,
+			GatewayIntentBits.GuildEmojisAndStickers,
+			GatewayIntentBits.MessageContent
 		]
 	});
 const botConfig = require("./config.json");
