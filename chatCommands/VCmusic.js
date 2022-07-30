@@ -4,10 +4,10 @@ const botConfig = require("../config.json");
 const embedMessage = require('./embedMessage.js');
 const {validateUrl} = require('youtube-validate');
 const ytMetadataSearch = require('youtube-metadata-from-url');
-const { joinVoiceChannel } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, VoiceConnectionStatus } = require('@discordjs/voice');
 
 module.exports = {
-    play: async function(message, ytquery, streamMeta){
+    play: async function(message, ytquery, streamMeta, client){
         console.log("play function called!");
         console.log("ytquery: " + ytquery);
         console.log("typeofQuery: " + typeof(ytquery));
@@ -43,26 +43,26 @@ module.exports = {
         };
         var voiceChannel = message.member.voice.channel;
         //Check if the user is in a channel to play music (end function here if true)
-        if(!voiceChannel || !voiceChannel.isVoice){
+        if(!voiceChannel){
             message.channel.send("You must be in a channel to play music!");
             return;
         }
 
         //if they are in the vc that the bot is already in, and they paused the stream, restart the stream by searching the 
         //metadata and resuming playback. (end function here if true)
-        if(message.member.voice.channel === message.guild.me.voice.channel && (typeof(ytquery) === 'undefined' || ytquery === "")){
+        if(message.member.voice.channel === message.guild.members.me.voice.channel && (typeof(ytquery) === 'undefined' || ytquery === "")){
             module.exports.resume(message, streamMeta);
             return;
         }
 
         //If person starts up a new stream in a separate vc while active in another vc, deny usage.
-        if(message.guild.me.voice.channel && (message.member.voice.channel !== message.guild.me.voice.channel) ){
+        if(message.guild.members.me.voice.channel && (message.member.voice.channel !== message.guild.members.me.voice.channel) ){
             message.channel.send("Sorry, the bot is bound to <#" + voiceChannel + ">!" )
             return;
         }
 
         //if the bot is in the same voice channel as the user who initiated the command, add to current stream's youtubelink array.
-        if(message.guild.me.voice.channel === message.member.voice.channel && (typeof(ytquery) === 'string')){
+        if(message.guild.members.me.voice.channel === message.member.voice.channel && (typeof(ytquery) === 'string')){
             var index = getMetadataIndex(streamMeta, message.guild);
             console.log(index);
             if(index !== -1){
@@ -94,7 +94,7 @@ module.exports = {
         //Setup for dispatcher to the Voice channel that the user is in. perform a search
         rollingMessage += "Initiating music stream for <@" + message.member.id + ">\n";
 
-        if(message.guild.me.voice.channel !== message.member.voice.channel){
+        if(message.guild.members.me.voice.channel !== message.member.voice.channel){
            rollingMessage += "Binding to: " + "<#" + voiceChannel + ">\n";
         }
 
@@ -124,7 +124,7 @@ module.exports = {
         newStream(message, voiceChannel, ytLink, streamOptions, streamMeta);
     },
     //pause the current stream in the same voice channel that the user is initiating the command.
-    pause: function(message, streamMeta){
+    pause: function(message, streamMeta, client){
         console.log("pause function called!")
         var voiceChannel = message.member.voice.channel;
         if(!voiceChannel){
@@ -147,7 +147,7 @@ module.exports = {
         }
     },
     //Resumes a currently paused stream in the guild.
-    resume: function(message, streamMeta){
+    resume: function(message, streamMeta, client){
         console.log("resume function called!");
         var voiceChannel = message.member.voice.channel;
         if(!voiceChannel){
@@ -174,7 +174,7 @@ module.exports = {
         }
     },
     //Skips the currents song playing in the stream, if nothing is next stream ends.
-    skip: function(message, streamMeta){
+    skip: function(message, streamMeta, client){
         console.log("skip function called!")
         var voiceChannel = message.member.voice.channel;
         if(!voiceChannel){
@@ -191,7 +191,7 @@ module.exports = {
         }
     },
     //Stop playing all songs, destroys playlist in current guild called.
-    stop: function(message, streamMeta){
+    stop: function(message, streamMeta, client){
         console.log("stop function called!");
         var voiceChannel = message.member.voice.channel;
         if(!voiceChannel){
@@ -208,7 +208,7 @@ module.exports = {
             voiceChannel.leave();
         }
     },
-    queue: function(message, streamMeta){
+    queue: function(message, streamMeta, client){
         console.log("listQueue function called!");
         var voiceChannel = message.member.voice.channel;
         if(!voiceChannel){
@@ -277,16 +277,21 @@ function getMetadataIndex(streamMeta, guild){
 //Sets up a new stream. Configures the disconnect event
 function newStream(message, voiceChannel, ytLink, streamOptions, streamMeta, rollingMessage){
     var connection = joinVoiceChannel({
-        channelId: voiceChannel,
-        guildId: message.guildId
+        channelId: voiceChannel.id,
+        guildId: message.guildId,
+        adapterCreator: message.member.voice.guild.voiceAdapterCreator
     });
 
     console.log("joined: " + voiceChannel);
     const stream = ytdl(ytLink.link, { filter: 'audioonly'});
-    const dispatcher = connection.play(stream, streamOptions);
+    const player = createAudioPlayer();
+    const resource = createAudioResource(stream);
+
+    player.play(resource);
+    const dispatcher = connection.subscribe(player);
 
     //Events on start and finish of audio playback.
-    dispatcher.on("start", () => onStart(message, ytLink));
+    dispatcher.on(VoiceConnectionStatus.Ready, () => onStart(message, ytLink));
     dispatcher.on("finish", end => onFinish(end, streamMeta, voiceChannel, message, connection, streamOptions));
     
     //write metadata to global array
@@ -330,7 +335,7 @@ function onFinish(end, streamMeta, voiceChannel, message, connection, streamOpti
     }
     else{
         const stream = ytdl(streamMeta[index].youtubeLinks[0].link, {filter : 'audioonly'});
-        const newDispatcher = connection.play(stream, streamOptions);
+        const newDispatcher = connection.subscribe(stream, streamOptions);
         streamMeta[index].dispatcherStream = newDispatcher;
 
         //callback functions
